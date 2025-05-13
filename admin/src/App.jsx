@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 
 import SignUp from './components/Auth/SignUp'
 import SignIn from './components/Auth/SignIn'
+import ErrorPage from './ErrorPage';
 import RootSignIn from './components/Auth/RootSignIn'
 
 //* Super Admin Routes
@@ -28,7 +29,8 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={<SignIn />} />
-        <Route path='/root' element={<RootSignIn />} />
+        <Route path='/roots' element={<RootSignIn />} />
+        <Route path='*' element={<ErrorPage />} />
         <Route path='/register' element={<SignUp />} />
 
         <Route path="/root-erp" element={<ProtectedRoute Component={Layout} />}   >
