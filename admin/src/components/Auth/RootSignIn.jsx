@@ -71,7 +71,7 @@ function SignIn() {
           duration: 3000,
           position: "bottom-right",
         });
-        navigate(`/root-erp`);
+        navigate(`/root-erp/overview`);
         console.log("Login successful", data);
       } else {
         toast.error(data.message || "Login failed", {

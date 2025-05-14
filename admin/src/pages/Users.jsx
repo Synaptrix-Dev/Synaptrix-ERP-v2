@@ -129,7 +129,7 @@ function Users() {
     const handleDelete = async (userId) => {
         if (window.confirm('Are you sure you want to delete this admin?')) {
             try {
-                const response = await fetch(`${authURL}/auth/delete-admins?_id=${userId}`, {
+                const response = await fetch(`${authURL}/root/auth/delete-admins?_id=${userId}`, {
                     method: 'DELETE',
                     headers: {
                         'x-api-key': apiKey

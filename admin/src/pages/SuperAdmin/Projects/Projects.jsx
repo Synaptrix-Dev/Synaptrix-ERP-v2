@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AddProjects from './ProjectModal';
 import { useAuth } from "../../../context/data";
 import toast from "react-hot-toast";
+import { Link } from 'react-router-dom'
 
 function Projects() {
     const { authURL } = useAuth();
@@ -85,7 +86,7 @@ function Projects() {
 
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-medium text-gray-500">Created On: 13 May, 2025</span>
-                        <button class="btnBg text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">View Details</button>
+                        <Link to='/root-erp/projects/asds' class="btnBg text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">View Details</Link>
                     </div>
                 </div>
             </div>

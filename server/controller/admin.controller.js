@@ -48,7 +48,7 @@ exports.adminLogin = async (req, res) => {
         res.json({ email, token });
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).json(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 

@@ -14,6 +14,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.use(
   cors({
     origin: "https://synaptrix-erp-v2.vercel.app",
+    // origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,

@@ -16,6 +16,7 @@ function Leads() {
     const [editFormData, setEditFormData] = useState({});
     const [shareModal, setShareModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
+    const [selectedLeadId, setSelectedLeadId] = useState(null);
 
     const openLeadsModal = () => setLeadsModal(true);
     const closeLeadsModal = () => setLeadsModal(false);
@@ -70,18 +71,24 @@ function Leads() {
         }
     };
 
+
     // Delete a lead
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
+        if (!selectedLeadId) {
+            toast.error('Please select a lead to delete');
+            return;
+        }
         if (!window.confirm('Are you sure you want to delete this lead?')) return;
         try {
-            const response = await fetch(`${authURL}/root/leads/delete-lead?id=${id}`, {
+            const response = await fetch(`${authURL}/root/leads/delete-lead?id=${selectedLeadId}`, {
                 method: 'DELETE',
                 headers: {
                     'x-api-key': apiKey,
                 },
             });
             if (!response.ok) throw new Error('Failed to delete lead');
-            setLeads(leads.filter((lead) => lead._id !== id));
+            setLeads(leads.filter((lead) => lead._id !== selectedLeadId));
+            setSelectedLeadId(null);
             toast.success('Lead deleted successfully!');
         } catch (error) {
             toast.error(`Error: ${error.message}`);
@@ -89,7 +96,12 @@ function Leads() {
     };
 
     // Start editing a lead
-    const handleEdit = (lead) => {
+    const handleEdit = () => {
+        if (!selectedLeadId) {
+            toast.error('Please select a lead to edit');
+            return;
+        }
+        const lead = leads.find((lead) => lead._id === selectedLeadId);
         setEditingLeadId(lead._id);
         setEditFormData({
             name: lead.name,
@@ -107,9 +119,13 @@ function Leads() {
     };
 
     // Save updated lead
-    const handleSave = async (id) => {
+    const handleSave = async () => {
+        if (!selectedLeadId) {
+            toast.error('Please select a lead to save');
+            return;
+        }
         try {
-            const response = await fetch(`${authURL}/root/leads/update-lead?id=${id}`, {
+            const response = await fetch(`${authURL}/root/leads/update-lead?id=${selectedLeadId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -119,7 +135,7 @@ function Leads() {
             });
             if (!response.ok) throw new Error('Failed to update lead');
             const updatedLead = await response.json();
-            setLeads(leads.map((lead) => (lead._id === id ? updatedLead : lead)));
+            setLeads(leads.map((lead) => (lead._id === selectedLeadId ? updatedLead : lead)));
             setEditingLeadId(null);
             toast.success('Lead updated successfully!');
         } catch (error) {
@@ -131,11 +147,23 @@ function Leads() {
     const handleCancel = () => {
         setEditingLeadId(null);
         setEditFormData({});
+        setSelectedLeadId(null);
+    };
+
+    // Share a lead
+    const handleShare = () => {
+        if (!selectedLeadId) {
+            toast.error('Please select a lead to share');
+            return;
+        }
+        const lead = leads.find((lead) => lead._id === selectedLeadId);
+        openShareModal(lead);
     };
 
     // Refresh leads
     const handleRefresh = () => {
         fetchLeads();
+        setSelectedLeadId(null);
     };
 
     // Fetch leads and admins on component mount
@@ -148,6 +176,7 @@ function Leads() {
     const getStatusStyles = (status) => {
         switch (status?.toLowerCase()) {
             case 'successful':
+            case 'success':
                 return {
                     bg: 'bg-green-100',
                     text: 'text-green-800',
@@ -167,12 +196,31 @@ function Leads() {
                     bg: 'bg-red-100',
                     text: 'text-red-800',
                 };
+            case 'email sent':
+                return {
+                    bg: 'bg-blue-100',
+                    text: 'text-blue-800',
+                };
+            case 'not applied':
+                return {
+                    bg: 'bg-purple-100',
+                    text: 'text-purple-800',
+                };
             default:
                 return {
                     bg: 'bg-gray-100',
                     text: 'text-gray-800',
                 };
         }
+    };
+
+    // Format timestamp to DD/MM/YY
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        return `${day}/${month}/${year}`;
     };
 
     // ShareLeadModal Component
@@ -276,7 +324,7 @@ function Leads() {
 
     return (
         <div className="p-4">
-            <div className="flex items-start justify-between mb-8">
+            <div className="flex items-start justify-between mb-4">
                 <div>
                     <h1 className="text-4xl font-bold text-gray-800">Leads Manager</h1>
                     <p className="text-sm text-gray-500 mt-1">
@@ -301,31 +349,74 @@ function Leads() {
                 </div>
             </div>
 
+            {/* Action Buttons */}
+            <div className="flex items-end justify-end w-full space-x-2 mb-4">
+                <button
+                    onClick={handleEdit}
+                    className="bg-emerald-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-colors duration-200"
+                >
+                    <i className="fa-solid fa-pen-to-square"></i>
+                    <span>Edit</span>
+                </button>
+                <button
+                    onClick={handleDelete}
+                    className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
+                >
+                    <i className="fa-solid fa-trash"></i>
+                    <span>Delete</span>
+                </button>
+                <button
+                    onClick={handleShare}
+                    className="bg-gray-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-700 transition-colors duration-200"
+                >
+                    <i className="fa-regular fa-share-from-square"></i>
+                    <span>Share</span>
+                </button>
+                {editingLeadId && (
+                    <>
+                        <button
+                            onClick={handleSave}
+                            className="bg-green-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors duration-200"
+                        >
+                            <i className="fa-regular fa-floppy-disk"></i>
+                            <span>Save</span>
+                        </button>
+                        <button
+                            onClick={handleCancel}
+                            className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
+                        >
+                            <i className="fa-regular fa-xmark"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </>
+                )}
+            </div>
+
             {/* Leads Table */}
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
                     <thead className="bg-gray-50">
                         <tr className="font-semibold text-gray-700">
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12">
+                       
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Lead ID
+                                ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
+                              Date
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
                                 Name
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Email
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Phone
+                                Contact
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
                                 Company
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
                                 Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-20">
-                                Actions
                             </th>
                         </tr>
                     </thead>
@@ -355,24 +446,36 @@ function Leads() {
                                 );
                                 return (
                                     <tr key={lead._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-900 font-bold border border-slate-200">
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
+                                            <input
+                                                type="radio"
+                                                name="selectedLead"
+                                                checked={selectedLeadId === lead._id}
+                                                onChange={() => setSelectedLeadId(lead._id)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 font-bold border border-slate-200">
                                             {lead.leadID}
                                         </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
+                                            {formatDate(lead.createdAt)}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
                                             {editingLeadId === lead._id ? (
                                                 <input
                                                     type="text"
                                                     name="name"
                                                     value={editFormData.name}
                                                     onChange={handleInputChange}
-                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full border border-gray-300 rounded-md px gallon-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                     required
                                                 />
                                             ) : (
                                                 lead.name
                                             )}
                                         </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500 border border-slate-200">
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-500 border border-slate-200">
                                             {editingLeadId === lead._id ? (
                                                 <input
                                                     type="email"
@@ -382,23 +485,17 @@ function Leads() {
                                                     className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 />
                                             ) : (
-                                                lead.email || 'N/A'
+                                                <>
+                                                    <p className="flex flex-col text-xs">
+                                                        {lead.email || 'N/A'}
+                                                    </p>
+                                                    <p className="text-xs">
+                                                        {lead.phone || 'N/A'}
+                                                    </p>
+                                                </>
                                             )}
                                         </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500 border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <input
-                                                    type="text"
-                                                    name="phone"
-                                                    value={editFormData.phone}
-                                                    onChange={handleInputChange}
-                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            ) : (
-                                                lead.phone || 'N/A'
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500 border border-slate-200">
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-500 border border-slate-200">
                                             {editingLeadId === lead._id ? (
                                                 <input
                                                     type="text"
@@ -418,73 +515,26 @@ function Leads() {
                                                 </>
                                             )}
                                         </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm border border-slate-200">
+                                        <td className="px-6 py-1 whitespace-nowrap text-xs border border-slate-200">
                                             {editingLeadId === lead._id ? (
-                                                <input
-                                                    type="text"
+                                                <select
                                                     name="status"
                                                     value={editFormData.status}
                                                     onChange={handleInputChange}
-                                                    className={`w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
-                                                />
+                                                    className={`w-full border border-gray-300 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
+                                                >
+                                                    <option value="Not Applied">Not Applied</option>
+                                                    <option value="Email Sent">Email Sent</option>
+                                                    <option value="No Response">No Response</option>
+                                                    <option value="Failed">Failed</option>
+                                                    <option value="Success">Success</option>
+                                                </select>
                                             ) : (
                                                 <span
-                                                    className={`inline-block px-3 py-1 rounded-full capitalize text-sm font-medium ${statusStyles.bg} ${statusStyles.text}`}
+                                                    className={`inline-block px-3 py-1 rounded-full capitalize text-xs font-medium ${statusStyles.bg} ${statusStyles.text}`}
                                                 >
                                                     {lead.status || 'N/A'}
                                                 </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-1 text-sm font-medium border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleSave(lead._id)}
-                                                        className="text-green-600 hover:text-green-800 mr-4 cursor-pointer"
-                                                    >
-                                                        <i className="fa-regular fa-floppy-disk"></i>
-                                                    </button>
-                                                    <button
-                                                        onClick={handleCancel}
-                                                        className="text-red-600 hover:text-red-800 cursor-pointer"
-                                                    >
-                                                        <i className="fa-regular fa-xmark"></i>
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <div className="flex items-center">
-                                                    <button
-                                                        onClick={() => handleEdit(lead)}
-                                                        className="text-blue-600 hover:text-blue-800 cursor-pointer"
-                                                    >
-                                                        <i className="fa-solid fa-pen-to-square"></i>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(lead._id)}
-                                                        className="text-red-600 hover:text-red-800 cursor-pointer"
-                                                    >
-                                                          <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-4 w-4 mx-2"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                        />
-                                                    </svg>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openShareModal(lead)}
-                                                        className="text-slate-600 hover:text-slate-800 cursor-pointer"
-                                                    >
-                                                        <i className="fa-regular fa-share-from-square"></i>
-                                                    </button>
-                                                </div>
                                             )}
                                         </td>
                                     </tr>

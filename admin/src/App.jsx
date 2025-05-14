@@ -16,6 +16,7 @@ import Users from './pages/Users';
 import Profile from './pages/ProfileSettings';
 import Leads from './pages/SuperAdmin/Leads/Leads';
 import Projects from './pages/SuperAdmin/Projects/Projects';
+import ProjectDetails from './pages/SuperAdmin/Projects/ProjectDetails';
 
 //* Admin Routes
 import AdminProtectedRoute from './pages/Admin/ProtectedRoute'
@@ -29,7 +30,7 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={<SignIn />} />
-        <Route path='/roots' element={<RootSignIn />} />
+        <Route path='/root' element={<RootSignIn />} />
         <Route path='*' element={<ErrorPage />} />
         <Route path='/register' element={<SignUp />} />
 
@@ -40,6 +41,7 @@ function App() {
           <Route path='profile' element={<Profile />} />
           <Route path='leads' element={<Leads />} />
           <Route path='projects' element={<Projects />} />
+          <Route path='projects/:id' element={<ProjectDetails />} />
         </Route>
 
         <Route path="/erp" element={<AdminProtectedRoute Component={AdminLayout} />}   >
