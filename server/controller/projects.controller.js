@@ -1,6 +1,6 @@
 const Project = require('../models/projects.model');
 
-// Create a new project
+
 exports.createProject = async (req, res) => {
     try {
         const project = new Project(req.body);
@@ -16,6 +16,7 @@ exports.createProject = async (req, res) => {
         });
     }
 };
+
 exports.getAllProjects = async (req, res) => {
     try {
         const projects = await Project.find();
@@ -24,7 +25,7 @@ exports.getAllProjects = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
-// Get all projects or filter by query
+
 exports.getProjects = async (req, res) => {
     try {
         const query = req.query;
@@ -45,7 +46,7 @@ exports.getProjects = async (req, res) => {
 // Get project by ID
 exports.getProjectById = async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await Project.findById(req.query.id);
         if (!project) {
             return res.status(404).json({
                 success: false,
@@ -64,7 +65,56 @@ exports.getProjectById = async (req, res) => {
     }
 };
 
-// Update project
+
+exports.updateProjectAccess = async (req, res) => {
+    try {
+        const { id, adminId, action } = req.query;
+
+        if (!id || !adminId || !action) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required query parameters: id, adminId, or action'
+            });
+        }
+
+        if (!['add', 'remove'].includes(action)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid action. Must be "add" or "remove"'
+            });
+        }
+
+        const update = action === 'add'
+            ? { $addToSet: { accesibles: adminId } }
+            : { $pull: { accesibles: adminId } };
+
+        const project = await Project.findByIdAndUpdate(
+            id,
+            update,
+            { new: true, runValidators: true }
+        );
+
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                error: 'Project not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Access ${action === 'add' ? 'granted to' : 'revoked from'} admin`,
+            updatedProject: project
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Existing updateProject controller (unchanged, included for reference)
 exports.updateProject = async (req, res) => {
     try {
         const project = await Project.findOneAndUpdate(
@@ -134,48 +184,6 @@ exports.updateMilestoneStatus = async (req, res) => {
         }
 
         milestone.status = status;
-        await project.save();
-
-        res.status(200).json({
-            success: true,
-            data: project
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            error: error.message
-        });
-    }
-};
-
-// Add ID to accessibles array
-exports.addToAccessibles = async (req, res) => {
-    try {
-        const { projectId, userId } = req.query;
-
-        const project = await Project.findById(projectId);
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                error: 'Project not found'
-            });
-        }
-
-        if (!userId) {
-            return res.status(400).json({
-                success: false,
-                error: 'User ID is required'
-            });
-        }
-
-        if (project.accesibles.includes(userId)) {
-            return res.status(400).json({
-                success: false,
-                error: 'User already has access'
-            });
-        }
-
-        project.accesibles.push(userId);
         await project.save();
 
         res.status(200).json({

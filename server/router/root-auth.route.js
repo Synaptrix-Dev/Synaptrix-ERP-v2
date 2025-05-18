@@ -25,6 +25,7 @@ router.route('/get-admins').get(rootAuth.getAllAdmins);
 router.route('/get-admin-info').get(rootAuth.getAdminById);
 router.route('/update-admin').put(rootAuth.updateAdmin);
 router.route('/delete-admins').delete(rootAuth.deleteAdmin);
+router.route('/get-image').get(rootAuth.getAdminImage);
 
 
 module.exports = router;

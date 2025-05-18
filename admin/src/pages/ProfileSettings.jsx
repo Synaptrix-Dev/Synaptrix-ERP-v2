@@ -15,6 +15,7 @@ function ProfileSettings() {
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
+        image: '',
         designation: '',
         workType: '',
         bankDetails: [{ accName: '', branch: '', accNum: '', iban: '' }]
@@ -36,6 +37,7 @@ function ProfileSettings() {
                 setAdminData(data);
                 setFormData({
                     fullName: data.fullName || '',
+                    image: data.image || '',
                     email: data.email || '',
                     designation: data.designation || '',
                     workType: data.workType || '',
@@ -106,8 +108,8 @@ function ProfileSettings() {
                     <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
                         <div className="flex items-end space-x-4">
                             <img
-                                className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
-                                src={adminData.image || profile}
+                                className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32 object-cover"
+                                src={adminData.image }
                                 alt="profile"
                             />
                         </div>

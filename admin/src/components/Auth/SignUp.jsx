@@ -16,6 +16,12 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long"),
+  fullName: z
+    .string()
+    .min(1, "Full name is required"),
+  image: z
+    .string()
+    .min(1, "Image is required")
 });
 
 function SignIn() {
@@ -25,15 +31,27 @@ function SignIn() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    fullName: ""
+    fullName: "",
+    image: ""
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
-    // Clear error for the field being edited
     setErrors({ ...errors, [e.target.id]: null });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result });
+        setErrors({ ...errors, image: null });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -68,7 +86,7 @@ function SignIn() {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        toast.success("Registration Successfull", {
+        toast.success("Registration Successful", {
           duration: 3000,
           position: "bottom-right",
         });
@@ -79,7 +97,7 @@ function SignIn() {
         });
         navigate(`/`)
       } else {
-        toast.error(data.message || "Login failed", {
+        toast.error(data.message || "Registration failed", {
           duration: 3000,
           position: "bottom-right",
         });
@@ -106,19 +124,64 @@ function SignIn() {
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="fullName" className="text-sm font-medium">
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                type="fullName"
-                placeholder="Full Name here..."
-                value={formData.fullName}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white border-slate-200"
-                required
-              />
+            <div className="flex items-center justify-center space-x-2">
+              <div className="space-y-2 w-full">
+                <label htmlFor="fullName" className="text-sm font-medium">
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  placeholder="Full Name here..."
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className={`flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white ${errors.fullName ? "border-red-500" : "border-slate-200"}`}
+                  required
+                />
+                {errors.fullName && (
+                  <p className="text-sm text-red-500">{errors.fullName}</p>
+                )}
+              </div>
+              <div className="space-y-2 w-full">
+                <label htmlFor="image" className="text-sm font-medium">
+                  Profile Photo
+                </label>
+                <div className={`flex h-10 w-full rounded-md border items-center px-3 py-2 text-sm ring-offset-white ${errors.image ? "border-red-500" : "border-slate-200"}`}>
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    required
+                  />
+                  <label
+                    htmlFor="image"
+                    className="flex items-center w-full cursor-pointer"
+                  >
+                    <svg
+                      className="w-5 h-5 mr-2 text-slate-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className="text-slate-500">
+                      {formData.image ? "Image selected" : "Upload image"}
+                    </span>
+                  </label>
+                </div>
+                {errors.image && (
+                  <p className="text-sm text-red-500">{errors.image}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -131,8 +194,7 @@ function SignIn() {
                 placeholder="name@synaptrixsol.com"
                 value={formData.email}
                 onChange={handleChange}
-                className={`flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white ${errors.email ? "border-red-500" : "border-slate-200"
-                  }`}
+                className={`flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white ${errors.email ? "border-red-500" : "border-slate-200"}`}
                 required
               />
               {errors.email && (
@@ -150,8 +212,7 @@ function SignIn() {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
-                className={`flex h-10 w-full rounded-md outline-none border px-3 py-2 text-sm ring-offset-white ${errors.password ? "border-red-500" : "border-slate-200"
-                  }`}
+                className={`flex h-10 w-full rounded-md outline-none border px-3 py-2 text-sm ring-offset-white ${errors.password ? "border-red-500" : "border-slate-200"}`}
                 required
               />
               {errors.password && (
@@ -182,8 +243,7 @@ function SignIn() {
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className={`inline-flex h-10 w-full items-center justify-center rounded-md bg-[#314CB6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 ${loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`inline-flex h-10 w-full items-center justify-center rounded-md bg-[#314CB6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {loading ? "Registering account..." : "Sign Up"}
             </button>

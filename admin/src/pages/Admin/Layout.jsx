@@ -81,6 +81,18 @@ function Layout() {
                             >
                                 <i className="fa-light fa-user-headset"></i>  <span className="text-sm font-semibold">Leads Generated</span>
                             </NavLink>
+                            <NavLink
+                                to="projects"
+                                className={({ isActive }) =>
+                                    `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                                        ? "bg-slate-100 border border-slate-200 text-slate-900"
+                                        : "border border-slate-800 text-white"
+                                    }`
+                                }
+                            >
+                                <i className="fa-regular fa-code"></i>
+                                <span className="text-sm font-semibold">Projects</span>
+                            </NavLink>
                         </ul>
                     </nav>
                 </div>

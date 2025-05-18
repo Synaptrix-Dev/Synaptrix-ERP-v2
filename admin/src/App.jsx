@@ -24,6 +24,7 @@ import AdminLayout from './pages/Admin/Layout'
 import AdminDashboard from './pages/Admin/Dashboard'
 import AdminCredentials from './pages/Admin/Credentials/Credentials';
 import AdminLeads from './pages/Admin/Leads/Leads';
+import AdminProjects from './pages/Admin/Projects/Projects'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path='credentials' element={<AdminCredentials />} />
           <Route path='profile' element={<Profile />} />
           <Route path='leads' element={<AdminLeads />} />
+          <Route path='projects' element={<AdminProjects />} />
         </Route>
 
       </Routes>

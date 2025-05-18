@@ -52,6 +52,39 @@ exports.adminLogin = async (req, res) => {
     }
 };
 
+exports.getAdminImage = async (req, res) => {
+    try {
+        const { ids } = req.query;
+
+        if (!ids) {
+            return res.status(400).json({ message: 'Missing admin ids in query' });
+        }
+
+        // Split the comma-separated IDs
+        const idArray = ids.split(',').map(id => id.trim()).filter(id => id);
+
+        if (idArray.length === 0) {
+            return res.status(400).json({ message: 'No valid admin IDs provided' });
+        }
+
+        // Fetch admins by IDs
+        const admins = await ADMIN.find({ _id: { $in: idArray } }).select('image');
+
+        if (!admins || admins.length === 0) {
+            return res.status(404).json({ message: 'No admins found' });
+        }
+
+        // Format response to include admin ID and image
+        const response = admins.map(admin => ({
+            _id: admin._id,
+            image: admin.image || null
+        }));
+
+        res.status(200).json(response);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 
 exports.getAdminById = async (req, res) => {
     try {

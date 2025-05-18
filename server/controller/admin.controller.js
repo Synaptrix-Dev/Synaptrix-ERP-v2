@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken');
 
 exports.adminRegister = async (req, res) => {
     try {
-        const { password, email, fullName } = req.body;
+        const { password, email, fullName, image } = req.body;
 
         let admin = await ADMIN.findOne({ email });
         if (admin) {
             return res.status(400).json({ message: 'Admin with this email already exists' });
         }
-        admin = new ADMIN({ password, email, fullName });
+        admin = new ADMIN({ password, email, fullName, image });
         await admin.save();
         res.status(201).json({ message: 'Admin registered successfully' });
     } catch (error) {
@@ -40,7 +40,7 @@ exports.adminLogin = async (req, res) => {
                 fullName: admin.fullName,
                 email: admin.email,
                 isAdmin: admin.isAdmin,
-                isSuperAdmin: admin.isSuperAdmin
+                isSuperAdmin: admin.isSuperAdmin,
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
