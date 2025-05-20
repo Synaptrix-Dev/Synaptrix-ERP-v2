@@ -17,6 +17,13 @@ function Leads() {
     const [shareModal, setShareModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
     const [selectedLeadId, setSelectedLeadId] = useState(null);
+    // New states for pagination and filtering
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+    const [sourceFilter, setSourceFilter] = useState('');
 
     const openLeadsModal = () => setLeadsModal(true);
     const closeLeadsModal = () => setLeadsModal(false);
@@ -29,11 +36,18 @@ function Leads() {
         setSelectedLead(null);
     };
 
-    // Fetch all leads
+    // Fetch all leads with pagination, search, and filters
     const fetchLeads = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${authURL}/root/leads/get-leads`, {
+            const queryParams = new URLSearchParams({
+                page,
+                limit,
+                ...(search && { search }),
+                ...(statusFilter && { status: statusFilter }),
+                ...(sourceFilter && { source: sourceFilter }),
+            });
+            const response = await fetch(`${authURL}/root/leads/get-leads?${queryParams}`, {
                 method: 'GET',
                 headers: {
                     'x-api-key': apiKey,
@@ -41,7 +55,8 @@ function Leads() {
             });
             if (!response.ok) throw new Error('Failed to fetch leads');
             const data = await response.json();
-            setLeads(data);
+            setLeads(data.leads);
+            setTotalPages(data.pagination.pages);
             toast.success('Leads fetched successfully!');
         } catch (error) {
             toast.error(`Error: ${error.message}`);
@@ -70,7 +85,6 @@ function Leads() {
             setLoading(false);
         }
     };
-
 
     // Delete a lead
     const handleDelete = async () => {
@@ -162,15 +176,43 @@ function Leads() {
 
     // Refresh leads
     const handleRefresh = () => {
+        setPage(1);
+        setSearch('');
+        setStatusFilter('');
+        setSourceFilter('');
         fetchLeads();
         setSelectedLeadId(null);
     };
 
-    // Fetch leads and admins on component mount
+    // Handle pagination
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setPage(newPage);
+        }
+    };
+
+    // Handle search input
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+        setPage(1); // Reset to first page on new search
+    };
+
+    // Handle filter changes
+    const handleStatusFilter = (e) => {
+        setStatusFilter(e.target.value);
+        setPage(1); // Reset to first page on filter change
+    };
+
+    const handleSourceFilter = (e) => {
+        setSourceFilter(e.target.value);
+        setPage(1); // Reset to first page on filter change
+    };
+
+    // Fetch leads on mount and when pagination/search/filters change
     useEffect(() => {
         fetchLeads();
         fetchAdmins();
-    }, []);
+    }, [page, search, statusFilter, sourceFilter]);
 
     // Function to determine status styles
     const getStatusStyles = (status) => {
@@ -349,201 +391,245 @@ function Leads() {
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-end justify-end w-full space-x-2 mb-4">
-                <button
-                    onClick={handleEdit}
-                    className="bg-emerald-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-colors duration-200"
-                >
-                    <i className="fa-solid fa-pen-to-square"></i>
-                    <span>Edit</span>
-                </button>
-                <button
-                    onClick={handleDelete}
-                    className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
-                >
-                    <i className="fa-solid fa-trash"></i>
-                    <span>Delete</span>
-                </button>
-                <button
-                    onClick={handleShare}
-                    className="bg-gray-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-700 transition-colors duration-200"
-                >
-                    <i className="fa-regular fa-share-from-square"></i>
-                    <span>Share</span>
-                </button>
-                {editingLeadId && (
-                    <>
+
+            {/* Pagination Controls */}
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page === 1}
+                        className="btnBg cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors duration-200"
+                    >
+                        Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                         <button
-                            onClick={handleSave}
-                            className="bg-green-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors duration-200"
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-4 py-2 rounded-md cursor-pointer text-sm font-medium ${pageNum === page
+                                ? 'btnBg text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                } transition-colors duration-200`}
                         >
-                            <i className="fa-regular fa-floppy-disk"></i>
-                            <span>Save</span>
+                            {pageNum}
                         </button>
-                        <button
-                            onClick={handleCancel}
-                            className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
-                        >
-                            <i className="fa-regular fa-xmark"></i>
-                            <span>Cancel</span>
-                        </button>
-                    </>
-                )}
+                    ))}
+                    <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page === totalPages}
+                        className="btnBg text-white text-sm cursor-pointer font-medium px-4 py-2 rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors duration-200"
+                    >
+                        Next
+                    </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-end justify-end w-full space-x-2 mb-4">
+                    <button
+                        onClick={handleEdit}
+                        className="bg-emerald-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-colors duration-200"
+                    >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                        <span>Edit</span>
+                    </button>
+                    <button
+                        onClick={handleDelete}
+                        className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
+                    >
+                        <i className="fa-solid fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                    <button
+                        onClick={handleShare}
+                        className="bg-gray-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-700 transition-colors duration-200"
+                    >
+                        <i className="fa-regular fa-share-from-square"></i>
+                        <span>Share</span>
+                    </button>
+                    {editingLeadId && (
+                        <>
+                            <button
+                                onClick={handleSave}
+                                className="bg-green-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors duration-200"
+                            >
+                                <i className="fa-regular fa-floppy-disk"></i>
+                                <span>Save</span>
+                            </button>
+                            <button
+                                onClick={handleCancel}
+                                className="bg-red-600 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors duration-200"
+                            >
+                                <i className="fa-regular fa-xmark"></i>
+                                <span>Cancel</span>
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+
+
+            {/* Search and Filter Controls */}
+            <div className="mb-4 flex items-center justify-center flex-wrap gap-4">
+                <div className="flex-1 min-w-[200px]">
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={handleSearch}
+                        placeholder="Search by name or email..."
+                        className="w-full bg-white rounded-lg border text-sm border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                    />
+                </div>
+                <div className="flex-1 min-w-[150px]">
+                    <select
+                        value={statusFilter}
+                        onChange={handleStatusFilter}
+                        className="w-full bg-white rounded-lg border text-sm border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Not Applied">Not Applied</option>
+                        <option value="Email Sent">Email Sent</option>
+                        <option value="No Response">No Response</option>
+                        <option value="Failed">Failed</option>
+                        <option value="Success">Success</option>
+                    </select>
+                </div>
             </div>
 
             {/* Leads Table */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <thead className="bg-gray-50">
-                        <tr className="font-semibold text-gray-700">
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12">
-                       
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                              Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Contact
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Company
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200">
-                                Status
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {loading ? (
-                            <tr>
-                                <td
-                                    colSpan="7"
-                                    className="px-6 py-1 text-center text-gray-500 border border-slate-200"
-                                >
-                                    Loading...
-                                </td>
-                            </tr>
-                        ) : leads.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan="7"
-                                    className="px-6 py-1 text-center text-gray-500 border border-slate-200"
-                                >
-                                    No leads found.
-                                </td>
-                            </tr>
-                        ) : (
-                            leads.map((lead) => {
-                                const statusStyles = getStatusStyles(
-                                    editingLeadId === lead._id ? editFormData.status : lead.status
-                                );
-                                return (
-                                    <tr key={lead._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
-                                            <input
-                                                type="radio"
-                                                name="selectedLead"
-                                                checked={selectedLeadId === lead._id}
-                                                onChange={() => setSelectedLeadId(lead._id)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 font-bold border border-slate-200">
-                                            {lead.leadID}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
-                                            {formatDate(lead.createdAt)}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <input
-                                                    type="text"
-                                                    name="name"
-                                                    value={editFormData.name}
-                                                    onChange={handleInputChange}
-                                                    className="w-full border border-gray-300 rounded-md px gallon-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    required
-                                                />
-                                            ) : (
-                                                lead.name
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-500 border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={editFormData.email}
-                                                    onChange={handleInputChange}
-                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            ) : (
-                                                <>
-                                                    <p className="flex flex-col text-xs">
-                                                        {lead.email || 'N/A'}
-                                                    </p>
-                                                    <p className="text-xs">
-                                                        {lead.phone || 'N/A'}
-                                                    </p>
-                                                </>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs text-gray-500 border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <input
-                                                    type="text"
-                                                    name="company"
-                                                    value={editFormData.company}
-                                                    onChange={handleInputChange}
-                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            ) : (
-                                                <>
-                                                    <p className="flex flex-col">
-                                                        {lead.company || 'N/A'}
-                                                    </p>
-                                                    <p className="text-xs">
-                                                        {lead.designation || 'N/A'}
-                                                    </p>
-                                                </>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-1 whitespace-nowrap text-xs border border-slate-200">
-                                            {editingLeadId === lead._id ? (
-                                                <select
-                                                    name="status"
-                                                    value={editFormData.status}
-                                                    onChange={handleInputChange}
-                                                    className={`w-full border border-gray-300 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
-                                                >
-                                                    <option value="Not Applied">Not Applied</option>
-                                                    <option value="Email Sent">Email Sent</option>
-                                                    <option value="No Response">No Response</option>
-                                                    <option value="Failed">Failed</option>
-                                                    <option value="Success">Success</option>
-                                                </select>
-                                            ) : (
-                                                <span
-                                                    className={`inline-block px-3 py-1 rounded-full capitalize text-xs font-medium ${statusStyles.bg} ${statusStyles.text}`}
-                                                >
-                                                    {lead.status || 'N/A'}
-                                                </span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
-            </div>
+    {/* Leads Table */}
+{/* Leads Table */}
+<div className="overflow-x-auto max-w-full">
+  <table className="w-full bg-white border border-gray-200 rounded-lg shadow-sm table-fixed">
+    <thead className="bg-gray-50">
+      <tr className="font-semibold text-gray-700">
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12"></th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[80px]">ID</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[96px]">Date</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[160px]">Name</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[192px]">Contact</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[256px]">Company</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[128px]">Status</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-gray-200">
+      {loading ? (
+        <tr>
+          <td
+            colSpan="7"
+            className="px-4 py-2 text-center text-gray-500 border border-slate-200"
+          >
+            Loading...
+          </td>
+        </tr>
+      ) : leads.length === 0 ? (
+        <tr>
+          <td
+            colSpan="7"
+            className="px-4 py-2 text-center text-gray-500 border border-slate-200"
+          >
+            No leads found.
+          </td>
+        </tr>
+      ) : (
+        leads.reverse().map((lead) => {
+          const statusStyles = getStatusStyles(
+            editingLeadId === lead._id ? editFormData.status : lead.status
+          );
+          return (
+            <tr key={lead._id} className="hover:bg-gray-50">
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
+                <input
+                  type="radio"
+                  name="selectedLead"
+                  checked={selectedLeadId === lead._id}
+                  onChange={() => setSelectedLeadId(lead._id)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 font-bold border border-slate-200">
+                {lead.leadID}
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
+                {formatDate(lead.createdAt)}
+              </td>
+              <td className="px-4 py-2 text-xs text-gray-900 border border-slate-200">
+                {editingLeadId === lead._id ? (
+                  <input
+                    type="text"
+                    name="name"
+                    value={editFormData.name}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                ) : (
+                  lead.name
+                )}
+              </td>
+              <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
+                {editingLeadId === lead._id ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={editFormData.email}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <>
+                    <p className="text-xs break-words">{lead.email || 'N/A'}</p>
+                    <p className="text-xs break-words">{lead.phone || 'N/A'}</p>
+                  </>
+                )}
+              </td>
+              <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
+                {editingLeadId === lead._id ? (
+                  <input
+                    type="text"
+                    name="company"
+                    value={editFormData.company}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <>
+                    <p className="text-xs break-words">{lead.company || 'N/A'}</p>
+                    <p className="text-xs break-words">{lead.website || 'N/A'}</p>
+                  </>
+                )}
+              </td>
+              <td className="px-4 py-2 text-xs border border-slate-200">
+                {editingLeadId === lead._id ? (
+                  <select
+                    name="status"
+                    value={editFormData.status}
+                    onChange={handleInputChange}
+                    className={`w-full border border-gray-300 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
+                  >
+                    <option value="Not Applied">Not Applied</option>
+                    <option value="Email Sent">Email Sent</option>
+                    <option value="No Response">No Response</option>
+                    <option value="Failed">Failed</option>
+                    <option value="Success">Success</option>
+                  </select>
+                ) : (
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full capitalize text-xs font-medium ${statusStyles.bg} ${statusStyles.text}`}
+                  >
+                    {lead.status || 'N/A'}
+                  </span>
+                )}
+              </td>
+            </tr>
+          );
+        })
+      )}
+    </tbody>
+  </table>
+</div>
+
+
 
             <AddLeads
                 isVisible={leadsModal}

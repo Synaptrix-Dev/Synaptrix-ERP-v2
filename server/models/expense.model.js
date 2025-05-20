@@ -1,47 +1,31 @@
 const mongoose = require('mongoose');
 
 const leadSchema = new mongoose.Schema({
-    createdBy: {
-        type: String,
-        required: true
-    },
-    leadID: {
-        type: String,
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
+    date: {
         type: String,
         required: false
     },
-    phone: {
+    investedAt: {
         type: String,
         required: false
     },
-    company: {
+    amount: {
         type: String,
         required: false
     },
-    designation: {
+    receiptsCodes: {
         type: String,
         required: false
     },
-    location: {
+    notes: {
         type: String,
         required: false
     },
-    type: {
+    outstandingAmount: {
         type: String,
         required: false
     },
-    website: {
-        type: String,
-        required: false
-    },
-    status: {
+    contribution: {
         type: String,
         required: false
     },

@@ -41,9 +41,8 @@ function Layout() {
     <div className="min-h-screen bg-gray-100 p-4 overflow-x-hidden max-w-full">
       <div className="flex gap-2 h-[calc(100vh-2rem)] max-w-full">
         <div
-          className={`bg-slate-900 border flex flex-col rounded-xl transition-all duration-300 ${
-            isSidebarOpen ? "min-w-64" : "w-0 overflow-hidden"
-          } fixed md:relative z-20 h-full`}
+          className={`bg-slate-900 border flex flex-col rounded-xl transition-all duration-300 ${isSidebarOpen ? "min-w-64" : "w-0 overflow-hidden"
+            } fixed md:relative z-20 h-full`}
         >
           <div className="p-4 border-b border-slate-800 flex justify-between items-center">
             <div className="flex flex-col items-start justify-start">
@@ -63,10 +62,9 @@ function Layout() {
               <NavLink
                 to="overview"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -76,10 +74,9 @@ function Layout() {
               <NavLink
                 to="credentials"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -89,10 +86,9 @@ function Layout() {
               <NavLink
                 to="leads"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -102,10 +98,9 @@ function Layout() {
               <NavLink
                 to="projects"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -115,10 +110,9 @@ function Layout() {
               <NavLink
                 to="earnings"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -126,12 +120,11 @@ function Layout() {
                 <span className="text-sm font-semibold">Earnings</span>
               </NavLink>
               <NavLink
-                to="expenses"
+                to="expense"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -141,10 +134,9 @@ function Layout() {
               <NavLink
                 to="invoices"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -154,10 +146,9 @@ function Layout() {
               <NavLink
                 to="products"
                 className={({ isActive }) =>
-                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${
-                    isActive
-                      ? "bg-slate-100 border border-slate-200 text-slate-900"
-                      : "border border-slate-800 text-white"
+                  `w-full h-10 flex items-center justify-start px-4 space-x-2 rounded ${isActive
+                    ? "bg-slate-100 border border-slate-200 text-slate-900"
+                    : "border border-slate-800 text-white"
                   }`
                 }
               >
@@ -176,9 +167,8 @@ function Layout() {
         )}
 
         <div
-          className={`flex-1 flex flex-col gap-2 ${
-            isSidebarOpen && window.innerWidth < 768 ? "ml-64" : ""
-          }`}
+          className={`flex-1 flex flex-col gap-2 ${isSidebarOpen && window.innerWidth < 768 ? "ml-64" : ""
+            }`}
         >
           <header>
             <div className="flex justify-between items-center">
@@ -202,10 +192,9 @@ function Layout() {
                 <NavLink
                   to="overview"
                   className={({ isActive }) =>
-                    `w-10 h-10 flex items-center justify-center rounded-full ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 border border-slate-200 text-slate-900"
+                    `w-10 h-10 flex items-center justify-center rounded-full ${isActive
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 border border-slate-200 text-slate-900"
                     }`
                   }
                 >
@@ -214,10 +203,9 @@ function Layout() {
                 <NavLink
                   to="users"
                   className={({ isActive }) =>
-                    `w-10 h-10 flex items-center justify-center rounded-full ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 border border-slate-200 text-slate-900"
+                    `w-10 h-10 flex items-center justify-center rounded-full ${isActive
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 border border-slate-200 text-slate-900"
                     }`
                   }
                 >
@@ -226,10 +214,9 @@ function Layout() {
                 <NavLink
                   to="profile"
                   className={({ isActive }) =>
-                    `w-10 h-10 flex items-center justify-center rounded-full ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 border border-slate-200 text-slate-900"
+                    `w-10 h-10 flex items-center justify-center rounded-full ${isActive
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 border border-slate-200 text-slate-900"
                     }`
                   }
                 >
@@ -245,7 +232,7 @@ function Layout() {
             </div>
           </header>
 
-          <main className="bg-white rounded-xl border border-slate-200 p-6 flex-1 overflow-y-auto w-full max-w-full">
+          <main className="bg-white rounded-xl border border-slate-200 p-6 flex-1 overflow-y-auto min-w-full">
             <Outlet />
           </main>
         </div>

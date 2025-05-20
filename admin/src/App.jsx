@@ -17,6 +17,7 @@ import Profile from './pages/ProfileSettings';
 import Leads from './pages/SuperAdmin/Leads/Leads';
 import Projects from './pages/SuperAdmin/Projects/Projects';
 import ProjectDetails from './pages/SuperAdmin/Projects/ProjectDetails';
+import Expense from './pages/SuperAdmin/Expense/Expense';
 
 //* Admin Routes
 import AdminProtectedRoute from './pages/Admin/ProtectedRoute'
@@ -43,6 +44,7 @@ function App() {
           <Route path='leads' element={<Leads />} />
           <Route path='projects' element={<Projects />} />
           <Route path='projects/:id' element={<ProjectDetails />} />
+          <Route path='expense' element={<Expense />} />
         </Route>
 
         <Route path="/erp" element={<AdminProtectedRoute Component={AdminLayout} />}   >

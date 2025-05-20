@@ -9,21 +9,59 @@ function Leads() {
     const userID = user?.user?.id;
     const [leads, setLeads] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+    });
+    const [filters, setFilters] = useState({
+        search: '',
+        status: '',
+        source: '',
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+    });
 
-    // Fetch all leads
+    // Fetch leads with filters, search, and pagination
     const fetchLeads = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${authURL}/root/leads/get-accessed-leads?id=${userID}`, {
+            const queryParams = new URLSearchParams({
+                id: userID,
+                page: pagination.currentPage,
+                limit: pagination.itemsPerPage,
+                ...filters,
+            }).toString();
+
+            const response = await fetch(`${authURL}/root/leads/get-accessed-leads?${queryParams}`, {
                 method: 'GET',
                 headers: {
                     'x-api-key': apiKey,
                 },
             });
+
             if (!response.ok) throw new Error('Failed to fetch leads');
             const data = await response.json();
             setLeads(data.leads);
-            toast.success('Leads fetched successfully!');
+            setPagination({
+                currentPage: data.pagination.currentPage,
+                totalPages: data.pagination.totalPages,
+                totalItems: data.pagination.totalItems,
+                itemsPerPage: data.pagination.itemsPerPage,
+            });
+
+            if (data.message) {
+                toast(data.message, {
+                    icon: 'ℹ️',
+                    style: {
+                        border: '1px solid #3b82f6',
+                        color: '#1f2937',
+                    },
+                });
+            } else {
+                toast.success('Leads fetched successfully!');
+            }
         } catch (error) {
             toast.error(`Error: ${error.message}`);
         } finally {
@@ -32,37 +70,38 @@ function Leads() {
     };
 
     useEffect(() => {
-        fetchLeads();
-    }, []);
+        if (userID) {
+            fetchLeads();
+        }
+    }, [pagination.currentPage, filters]);
+
+    // Handle filter changes
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters((prev) => ({ ...prev, [name]: value }));
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    };
+
+    // Handle pagination
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            setPagination((prev) => ({ ...prev, currentPage: newPage }));
+        }
+    };
 
     // Function to determine status styles
     const getStatusStyles = (status) => {
         switch (status?.toLowerCase()) {
             case 'successful':
-                return {
-                    bg: 'bg-green-100',
-                    text: 'text-green-800',
-                };
+                return { bg: 'bg-green-100', text: 'text-green-800' };
             case 'under discussion':
-                return {
-                    bg: 'bg-yellow-100',
-                    text: 'text-yellow-800',
-                };
+                return { bg: 'bg-yellow-100', text: 'text-yellow-800' };
             case 'no response':
-                return {
-                    bg: 'bg-gray-100',
-                    text: 'text-gray-800',
-                };
+                return { bg: 'bg-gray-100', text: 'text-gray-800' };
             case 'failed':
-                return {
-                    bg: 'bg-red-100',
-                    text: 'text-red-800',
-                };
+                return { bg: 'bg-red-100', text: 'text-red-800' };
             default:
-                return {
-                    bg: 'bg-gray-100',
-                    text: 'text-gray-800',
-                };
+                return { bg: 'bg-gray-100', text: 'text-gray-800' };
         }
     };
 
@@ -75,15 +114,67 @@ function Leads() {
                         Manage Synaptrix Solution leads & their respective details.
                     </p>
                 </div>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={fetchLeads}
-                        className="bg-slate-50 cursor-pointer text-slate-800 border border-slate-200 text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-slate-100 transition-colors duration-200"
-                    >
-                        <i className="fa-sharp-duotone fa-regular fa-arrows-rotate"></i>
-                        <span>Refresh</span>
-                    </button>
-                </div>
+                <button
+                    onClick={fetchLeads}
+                    className="bg-slate-50 cursor-pointer text-slate-800 border border-slate-200 text-sm font-medium px-4 py-1 rounded-md flex items-center justify-center space-x-2 hover:bg-slate-100 transition-colors duration-200"
+                >
+                    <i className="fa-sharp-duotone fa-regular fa-arrows-rotate"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            {/* Filters and Search */}
+            <div className="mb-6 flex flex-wrap gap-4">
+                <input
+                    type="text"
+                    name="search"
+                    value={filters.search}
+                    onChange={handleFilterChange}
+                    placeholder="Search by name or email..."
+                    className="px-4 py-1 text-sm border w-1/3 border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <select
+                    name="status"
+                    value={filters.status}
+                    onChange={handleFilterChange}
+                    className="px-4 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">All Statuses</option>
+                    <option value="successful">Successful</option>
+                    <option value="under discussion">Under Discussion</option>
+                    <option value="no response">No Response</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <select
+                    name="source"
+                    value={filters.source}
+                    onChange={handleFilterChange}
+                    className="px-4 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">All Sources</option>
+                    <option value="website">Website</option>
+                    <option value="referral">Referral</option>
+                    <option value="advertisement">Advertisement</option>
+                </select>
+                <select
+                    name="sortBy"
+                    value={filters.sortBy}
+                    onChange={handleFilterChange}
+                    className="px-4 py-1 border text-sm border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="createdAt">Created At</option>
+                    <option value="name">Name</option>
+                    <option value="email">Email</option>
+                </select>
+                <select
+                    name="sortOrder"
+                    value={filters.sortOrder}
+                    onChange={handleFilterChange}
+                    className="px-4 py-1 border text-sm border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
             </div>
 
             {/* Leads Table */}
@@ -168,6 +259,32 @@ function Leads() {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="mt-4 flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                    Showing {leads.length} of {pagination.totalItems} leads
+                </div>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                        className="px-4 py-1 border border-slate-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                        Previous
+                    </button>
+                    <span className="px-4 py-1 text-sm text-gray-700">
+                        Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                        className="px-4 py-1 border border-slate-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     );

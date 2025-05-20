@@ -119,7 +119,7 @@ const AddProjects = ({ isVisible, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[99] bg-opacity-75 bg-black/50 backdrop-blur-sm flex justify-center items-center">
-            <div className="bg-white border-2 border-slate-200 rounded-xl shadow-lg px-8 py-10 w-full max-w-4xl flex flex-col h-[70vh] overflow-y-auto">
+            <div className="bg-white border-2 border-slate-200 rounded-xl shadow-lg px-8 py-10 w-full max-w-4xl flex flex-col h-[75vh] overflow-y-auto">
                 <div className="flex items-start justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-semibold text-gray-900">Add New Project</h1>
@@ -233,7 +233,7 @@ const AddProjects = ({ isVisible, onClose }) => {
                         <label className="text-sm font-medium text-gray-700">Description</label>
                         <div id="editor" className="mt-1 border border-gray-300 rounded-md" style={{ minHeight: '150px' }}></div>
                     </div>
-                    <div className="col-span-2 flex justify-end gap-3 mt-6">
+                    <div className="col-span-2 flex justify-end gap-3 mt-14">
                         <button
                             type="button"
                             onClick={onClose}
@@ -243,7 +243,7 @@ const AddProjects = ({ isVisible, onClose }) => {
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                            className="px-4 py-2 text-sm font-medium text-white btnBg rounded-md hover:bg-blue-700"
                         >
                             Add Project
                         </button>
