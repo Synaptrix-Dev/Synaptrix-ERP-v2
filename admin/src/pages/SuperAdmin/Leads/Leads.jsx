@@ -504,12 +504,12 @@ function Leads() {
     <thead className="bg-gray-50">
       <tr className="font-semibold text-gray-700">
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12"></th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[80px]">ID</th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[96px]">Date</th>
+        <th className="px-4 w-18 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[80px]">ID</th>
+        <th className="px-4 py-3 w-24 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[96px]">Date</th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[160px]">Name</th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[192px]">Contact</th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[256px]">Company</th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[128px]">Status</th>
+        <th className="px-4 py-3 w-32 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[128px]">Status</th>
       </tr>
     </thead>
     <tbody className="divide-y divide-gray-200">
