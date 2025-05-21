@@ -14,6 +14,7 @@ const leadsController = require('../controller/leads.controller')
 router.route('/add-lead').post(leadsController.createLead);
 router.route('/add-bulk-lead').post(leadsController.createBulkLead);
 router.route('/get-leads').get(leadsController.getAllLeads);
+router.route('/get-types').get(leadsController.getUniqueTypes);
 router.route('/get-accessed-leads').get(leadsController.getAccessibleLeads);
 router.route('/update-lead').put(leadsController.updateLead);
 router.route('/update-leads-access').put(leadsController.updateLeadsAccess);

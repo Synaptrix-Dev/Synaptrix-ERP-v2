@@ -3,6 +3,7 @@ import { useAuth } from "../../../context/data";
 import toast from "react-hot-toast";
 import { useParams } from 'react-router-dom';
 import Loader from '../../../components/Loader';
+import DOMPurify from 'dompurify'; // For sanitizing HTML
 
 function ProjectDetails() {
     const { authURL } = useAuth();
@@ -55,7 +56,6 @@ function ProjectDetails() {
                 const result = await response.json();
                 if (result.success) {
                     setProject(result.data);
-                    // Fetch contributor images after project data is loaded
                     fetchContributorImages(result.data.accesibles);
                 } else {
                     throw new Error('Failed to fetch project data');
@@ -83,6 +83,21 @@ function ProjectDetails() {
             default: return 'bg-gray-500';
         }
     };
+
+    // Function to decode escaped HTML (e.g., "&lt;" to "<")
+    const decodeHtml = (html) => {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    };
+
+    // Decode and sanitize the project description
+    const decodedDescription = decodeHtml(project.description);
+    const sanitizedDescription = DOMPurify.sanitize(decodedDescription, {
+        USE_PROFILES: { html: true },
+        ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'blockquote', 'code', 'pre', 'br', 'div', 'span'],
+        ALLOWED_ATTR: ['href', 'class', 'style', 'target', 'rel'],
+    });
 
     return (
         <div className="p-4">
@@ -178,7 +193,7 @@ function ProjectDetails() {
             {/* Secondary Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Client Details Card */}
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden transition-all duration-300 ">
+                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden transition-all duration-300">
                     <div className="bg-gradient-to-r from-amber-50 to-yellow-50 px-6 py-4 border-b border-gray-100">
                         <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                             <svg className="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -299,8 +314,8 @@ function ProjectDetails() {
                 <div className="p-6">
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                         <div
-                            className="text-gray-700 leading-relaxed prose prose-sm sm:prose lg:prose-lg max-w-none"
-                            dangerouslySetInnerHTML={{ __html: project.description }}
+                            className="prose prose-sm sm:prose lg:prose-lg max-w-none text-gray-700 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                         />
                     </div>
                 </div>

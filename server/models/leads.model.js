@@ -21,14 +21,6 @@ const leadSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    company: {
-        type: String,
-        required: false
-    },
-    designation: {
-        type: String,
-        required: false
-    },
     location: {
         type: String,
         required: false

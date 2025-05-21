@@ -159,7 +159,7 @@ function ProfileSettings() {
                     adminData.bankDetails.map((bank, index) => (
                         <div
                             key={index}
-                            className="max-w-md bg-slate-50 text-gray-900 border border-slate-200 rounded-lg p-6 mb-4"
+                            className="max-w-lg bg-slate-50 text-gray-900 border border-slate-200 rounded-lg p-6 mb-4"
                         >
                             {/* Card Logo */}
                             <div className="flex justify-between items-center mb-6">

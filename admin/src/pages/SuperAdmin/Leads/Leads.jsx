@@ -17,13 +17,14 @@ function Leads() {
     const [shareModal, setShareModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
     const [selectedLeadId, setSelectedLeadId] = useState(null);
-    // New states for pagination and filtering
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [sourceFilter, setSourceFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
+    const [types, setTypes] = useState([]); // New state for unique types
 
     const openLeadsModal = () => setLeadsModal(true);
     const closeLeadsModal = () => setLeadsModal(false);
@@ -46,6 +47,7 @@ function Leads() {
                 ...(search && { search }),
                 ...(statusFilter && { status: statusFilter }),
                 ...(sourceFilter && { source: sourceFilter }),
+                ...(typeFilter && { type: typeFilter }),
             });
             const response = await fetch(`${authURL}/root/leads/get-leads?${queryParams}`, {
                 method: 'GET',
@@ -62,6 +64,23 @@ function Leads() {
             toast.error(`Error: ${error.message}`);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Fetch unique types
+    const fetchTypes = async () => {
+        try {
+            const response = await fetch(`${authURL}/root/leads/get-types`, {
+                method: 'GET',
+                headers: {
+                    'x-api-key': apiKey,
+                },
+            });
+            if (!response.ok) throw new Error('Failed to fetch types');
+            const data = await response.json();
+            setTypes(data);
+        } catch (error) {
+            toast.error(`Error fetching types: ${error.message}`);
         }
     };
 
@@ -121,7 +140,7 @@ function Leads() {
             name: lead.name,
             email: lead.email || '',
             phone: lead.phone || '',
-            company: lead.company || '',
+            website: lead.website || '',
             status: lead.status || '',
         });
     };
@@ -180,6 +199,7 @@ function Leads() {
         setSearch('');
         setStatusFilter('');
         setSourceFilter('');
+        setTypeFilter('');
         fetchLeads();
         setSelectedLeadId(null);
     };
@@ -194,25 +214,31 @@ function Leads() {
     // Handle search input
     const handleSearch = (e) => {
         setSearch(e.target.value);
-        setPage(1); // Reset to first page on new search
+        setPage(1);
     };
 
     // Handle filter changes
     const handleStatusFilter = (e) => {
         setStatusFilter(e.target.value);
-        setPage(1); // Reset to first page on filter change
+        setPage(1);
     };
 
     const handleSourceFilter = (e) => {
         setSourceFilter(e.target.value);
-        setPage(1); // Reset to first page on filter change
+        setPage(1);
     };
 
-    // Fetch leads on mount and when pagination/search/filters change
+    const handleTypeFilter = (e) => {
+        setTypeFilter(e.target.value);
+        setPage(1);
+    };
+
+    // Fetch leads, admins, and types on mount and when pagination/search/filters change
     useEffect(() => {
         fetchLeads();
         fetchAdmins();
-    }, [page, search, statusFilter, sourceFilter]);
+        fetchTypes(); // Fetch types on mount
+    }, [page, search, statusFilter, sourceFilter, typeFilter]);
 
     // Function to determine status styles
     const getStatusStyles = (status) => {
@@ -391,7 +417,6 @@ function Leads() {
                 </div>
             </div>
 
-
             {/* Pagination Controls */}
             <div className="mt-4 flex items-center justify-between">
                 <div className="flex space-x-2">
@@ -467,8 +492,6 @@ function Leads() {
                 </div>
             </div>
 
-
-
             {/* Search and Filter Controls */}
             <div className="mb-4 flex items-center justify-center flex-wrap gap-4">
                 <div className="flex-1 min-w-[200px]">
@@ -494,142 +517,155 @@ function Leads() {
                         <option value="Success">Success</option>
                     </select>
                 </div>
+                <div className="flex-1 min-w-[150px]">
+                    <select
+                        value={typeFilter}
+                        onChange={handleTypeFilter}
+                        className="w-full bg-white rounded-lg border text-sm border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                    >
+                        <option value="">All Types</option>
+                        {types.map((type) => (
+                            <option key={type} value={type}>
+                                {type}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {/* Leads Table */}
-    {/* Leads Table */}
-{/* Leads Table */}
-<div className="overflow-x-auto max-w-full">
-  <table className="w-full bg-white border border-gray-200 rounded-lg shadow-sm table-fixed">
-    <thead className="bg-gray-50">
-      <tr className="font-semibold text-gray-700">
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12"></th>
-        <th className="px-4 w-18 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[80px]">ID</th>
-        <th className="px-4 py-3 w-24 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[96px]">Date</th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[160px]">Name</th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[192px]">Contact</th>
-        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[256px]">Company</th>
-        <th className="px-4 py-3 w-32 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[128px]">Status</th>
-      </tr>
-    </thead>
-    <tbody className="divide-y divide-gray-200">
-      {loading ? (
-        <tr>
-          <td
-            colSpan="7"
-            className="px-4 py-2 text-center text-gray-500 border border-slate-200"
-          >
-            Loading...
-          </td>
-        </tr>
-      ) : leads.length === 0 ? (
-        <tr>
-          <td
-            colSpan="7"
-            className="px-4 py-2 text-center text-gray-500 border border-slate-200"
-          >
-            No leads found.
-          </td>
-        </tr>
-      ) : (
-        leads.reverse().map((lead) => {
-          const statusStyles = getStatusStyles(
-            editingLeadId === lead._id ? editFormData.status : lead.status
-          );
-          return (
-            <tr key={lead._id} className="hover:bg-gray-50">
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
-                <input
-                  type="radio"
-                  name="selectedLead"
-                  checked={selectedLeadId === lead._id}
-                  onChange={() => setSelectedLeadId(lead._id)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-              </td>
-              <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 font-bold border border-slate-200">
-                {lead.leadID}
-              </td>
-              <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
-                {formatDate(lead.createdAt)}
-              </td>
-              <td className="px-4 py-2 text-xs text-gray-900 border border-slate-200">
-                {editingLeadId === lead._id ? (
-                  <input
-                    type="text"
-                    name="name"
-                    value={editFormData.name}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                ) : (
-                  lead.name
-                )}
-              </td>
-              <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
-                {editingLeadId === lead._id ? (
-                  <input
-                    type="email"
-                    name="email"
-                    value={editFormData.email}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <>
-                    <p className="text-xs break-words">{lead.email || 'N/A'}</p>
-                    <p className="text-xs break-words">{lead.phone || 'N/A'}</p>
-                  </>
-                )}
-              </td>
-              <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
-                {editingLeadId === lead._id ? (
-                  <input
-                    type="text"
-                    name="company"
-                    value={editFormData.company}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <>
-                    <p className="text-xs break-words">{lead.company || 'N/A'}</p>
-                    <p className="text-xs break-words">{lead.website || 'N/A'}</p>
-                  </>
-                )}
-              </td>
-              <td className="px-4 py-2 text-xs border border-slate-200">
-                {editingLeadId === lead._id ? (
-                  <select
-                    name="status"
-                    value={editFormData.status}
-                    onChange={handleInputChange}
-                    className={`w-full border border-gray-300 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
-                  >
-                    <option value="Not Applied">Not Applied</option>
-                    <option value="Email Sent">Email Sent</option>
-                    <option value="No Response">No Response</option>
-                    <option value="Failed">Failed</option>
-                    <option value="Success">Success</option>
-                  </select>
-                ) : (
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full capitalize text-xs font-medium ${statusStyles.bg} ${statusStyles.text}`}
-                  >
-                    {lead.status || 'N/A'}
-                  </span>
-                )}
-              </td>
-            </tr>
-          );
-        })
-      )}
-    </tbody>
-  </table>
-</div>
-
-
+            <div className="overflow-x-auto max-w-full">
+                <table className="w-full bg-white border border-gray-200 rounded-lg shadow-sm table-fixed">
+                    <thead className="bg-gray-50">
+                        <tr className="font-semibold text-gray-700">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-12"></th>
+                            <th className="px-4 w-18 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[80px]">ID</th>
+                            <th className="px-4 py-3 w-24 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[96px]">Date</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[160px]">Name</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-[182px]">Contact</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 min-w-[192px]">Website</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 w-[130px]">Status</th>
+                            <th className="px-4 py-3 w-32 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border border-slate-200 max-w-[100px]">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {loading ? (
+                            <tr>
+                                <td
+                                    colSpan="7"
+                                    className="px-4 py-2 text-center text-gray-500 border border-slate-200"
+                                >
+                                    Loading...
+                                </td>
+                            </tr>
+                        ) : leads.length === 0 ? (
+                            <tr>
+                                <td
+                                    colSpan="7"
+                                    className="px-4 py-2 text-center text-gray-500 border border-slate-200"
+                                >
+                                    No leads found.
+                                </td>
+                            </tr>
+                        ) : (
+                            leads.reverse().map((lead) => {
+                                const statusStyles = getStatusStyles(
+                                    editingLeadId === lead._id ? editFormData.status : lead.status
+                                );
+                                return (
+                                    <tr key={lead._id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border border-slate-200">
+                                            <input
+                                                type="radio"
+                                                name="selectedLead"
+                                                checked={selectedLeadId === lead._id}
+                                                onChange={() => setSelectedLeadId(lead._id)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 font-bold border border-slate-200">
+                                            {lead.leadID}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
+                                            {formatDate(lead.createdAt)}
+                                        </td>
+                                        <td className="px-4 py-2 text-xs text-gray-900 border border-slate-200">
+                                            {editingLeadId === lead._id ? (
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    value={editFormData.name}
+                                                    onChange={handleInputChange}
+                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    required
+                                                />
+                                            ) : (
+                                                lead.name
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
+                                            {editingLeadId === lead._id ? (
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={editFormData.email}
+                                                    onChange={handleInputChange}
+                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            ) : (
+                                                <>
+                                                    <p className="text-xs break-words">{lead.email || 'N/A'}</p>
+                                                    <p className="text-xs break-words">{lead.phone || 'N/A'}</p>
+                                                </>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2 text-xs text-gray-500 border border-slate-200">
+                                            {editingLeadId === lead._id ? (
+                                                <input
+                                                    type="text"
+                                                    name="website"
+                                                    value={editFormData.website}
+                                                    onChange={handleInputChange}
+                                                    className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            ) : (
+                                                <>
+                                                    <p className="text-xs break-words">{lead.website || 'N/A'}</p>
+                                                </>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2 text-xs border border-slate-200">
+                                            {editingLeadId === lead._id ? (
+                                                <select
+                                                    name="status"
+                                                    value={editFormData.status}
+                                                    onChange={handleInputChange}
+                                                    className={`w-full border border-gray-300 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusStyles.bg} ${statusStyles.text}`}
+                                                >
+                                                    <option value="Not Applied">Not Applied</option>
+                                                    <option value="Email Sent">Email Sent</option>
+                                                    <option value="No Response">No Response</option>
+                                                    <option value="Failed">Failed</option>
+                                                    <option value="Success">Success</option>
+                                                </select>
+                                            ) : (
+                                                <span
+                                                    className={`inline-block px-3 py-1 rounded-full capitalize text-xs font-medium ${statusStyles.bg} ${statusStyles.text}`}
+                                                >
+                                                    {lead.status || 'N/A'}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-900 border border-slate-200">
+                                            {lead.type || 'N/A'}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             <AddLeads
                 isVisible={leadsModal}

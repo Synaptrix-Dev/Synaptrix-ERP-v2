@@ -224,7 +224,7 @@ function Users() {
                                             <select
                                                 value={user.isAdmin ? 'Allowed' : 'Restricted'}
                                                 onChange={(e) => handleAdminStatusChange(user, e.target.value)}
-                                                className="mt-1 block w-32 rounded bg-white border px-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                                className="mt-1 block w-42 rounded bg-white border px-2 py-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm"
                                             >
                                                 <option value="Allowed">Allowed</option>
                                                 <option value="Restricted">Restricted</option>

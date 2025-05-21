@@ -13,7 +13,7 @@ const AddLeads = ({ isVisible, onClose }) => {
         email: '',
         phone: '',
         location: '',
-        company: '',
+        website: '',
         designation: '',
         status: '',
         leadID: '',
@@ -38,7 +38,7 @@ const AddLeads = ({ isVisible, onClose }) => {
             name: formData.name,
             email: formData.email || undefined,
             phone: formData.phone || undefined,
-            company: formData.company || undefined,
+            website: formData.website || undefined,
             designation: formData.designation || undefined,
             status: formData.status || undefined,
         };
@@ -62,7 +62,7 @@ const AddLeads = ({ isVisible, onClose }) => {
                 email: '',
                 phone: '',
                 designation: '',
-                company: '',
+                website: '',
                 status: '',
                 leadID: '',
             });
@@ -126,9 +126,9 @@ const AddLeads = ({ isVisible, onClose }) => {
                     />
                     <input
                         type="text"
-                        name="company"
-                        placeholder="Company"
-                        value={formData.company}
+                        name="website"
+                        placeholder="website"
+                        value={formData.website}
                         onChange={handleChange}
                         className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                     />
