@@ -1,21 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const path = require('path');
+const path = require("path");
 const rootRouter = require("./router/root-auth.route");
 const adminRouter = require("./router/admin-auth.route");
-const credsRouter = require('./router/credential.route')
-const leadsRouter = require('./router/leads.route');
-const projectsRouter = require('./router/projects.route')
+const credsRouter = require("./router/credential.route");
+const leadsRouter = require("./router/leads.route");
+const projectsRouter = require("./router/projects.route");
 
 const server = express();
 
-server.use(express.static(path.join(__dirname, 'public')));
+server.use(express.static(path.join(__dirname, "public")));
 
 server.use(
   cors({
-    origin: "https://synaptrix-erp-v2.vercel.app",
-    // origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    // origin: "https://synaptrix-erp-v2.vercel.app",
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
   })
@@ -35,7 +35,7 @@ server.use("/api/root/projects", projectsRouter);
 server.use("/api/admin/auth", adminRouter);
 
 server.get("/", (req, res) => {
-  res.status(200).sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const Port = 7980;
