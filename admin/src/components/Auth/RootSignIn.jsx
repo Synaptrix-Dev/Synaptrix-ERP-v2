@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/data";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import Logo from "../../assets/logoFull.png";
 
-// Define Zod schema for validation
+// Zod schema
 const loginSchema = z.object({
   email: z
     .string()
@@ -13,26 +13,49 @@ const loginSchema = z.object({
     .refine((email) => email.endsWith("@synaptrixsol.com"), {
       message: "Email must be from @synaptrixsol.com domain",
     }),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
 function SignIn() {
   const { authURL } = useAuth();
   const apiKey = import.meta.env.VITE_APIKEY;
   const navigate = useNavigate();
+  const location = useLocation(); // Get current route
+  const formRef = useRef(null); // Ref for the form element
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    remember: false,
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Autofill email from localStorage (applies to / and /root)
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberEmail");
+    console.log(
+      `[SignIn] Checking localStorage on route ${location.pathname}:`,
+      { rememberedEmail }
+    );
+    if (rememberedEmail) {
+      setFormData((prev) => ({
+        ...prev,
+        email: rememberedEmail,
+        remember: true,
+      }));
+    } else {
+      console.log("[SignIn] No remembered email found in localStorage");
+    }
+  }, [location.pathname]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-    // Clear error for the field being edited
-    setErrors({ ...errors, [e.target.id]: null });
+    const { id, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: type === "checkbox" ? checked : value,
+    }));
+    setErrors((prev) => ({ ...prev, [id]: null }));
   };
 
   const handleSubmit = async (e) => {
@@ -60,19 +83,29 @@ function SignIn() {
           "Content-Type": "application/json",
           "x-api-key": apiKey,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
+        if (formData.remember) {
+          localStorage.setItem("rememberEmail", formData.email);
+          console.log("[SignIn] Saved email to localStorage:", formData.email);
+        } else {
+          localStorage.removeItem("rememberEmail");
+          console.log("[SignIn] Removed remembered email from localStorage");
+        }
         toast.success("Login successful", {
           duration: 3000,
           position: "bottom-right",
         });
         navigate(`/root-erp/overview`);
-        console.log("Login successful", data);
+        console.log("[SignIn] Login successful", data);
       } else {
         toast.error(data.message || "Login failed", {
           duration: 3000,
@@ -84,10 +117,36 @@ function SignIn() {
         duration: 3000,
         position: "bottom-right",
       });
-      console.log(error);
+      console.error("[SignIn] Server error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle Enter keypress for inputs
+  const handleKeyDown = (e) => {
+    console.log("[SignIn] Key pressed:", e.key);
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent unwanted default behavior
+      console.log("[SignIn] Enter key detected, triggering form submit");
+      if (formRef.current) {
+        formRef.current.dispatchEvent(
+          new Event("submit", { cancelable: true, bubbles: true })
+        );
+      } else {
+        console.error("[SignIn] Form ref not found");
+      }
+    }
+  };
+
+  // Handle GitHub button click (placeholder for superadmin logic)
+  const handleGitHubClick = () => {
+    console.log("[SignIn] GitHub button clicked on route", location.pathname);
+    // TODO: Add superadmin-specific logic (e.g., different API call or navigation)
+    toast.info("GitHub login not implemented yet", {
+      duration: 3000,
+      position: "bottom-right",
+    });
   };
 
   return (
@@ -96,23 +155,36 @@ function SignIn() {
         <div className="p-6">
           <div className="flex flex-col items-start text-center mb-8">
             <img src={Logo} alt="Logo" className="w-48 mb-4" />
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-slate-500">Enter your credentials to get into Dashboard</p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome back
+            </h1>
+            <p className="text-sm text-slate-500">
+              Enter your credentials to get into Dashboard
+            </p>
           </div>
 
-          <div className="space-y-4">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            autoComplete="on"
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="username"
                 placeholder="name@synaptrixsol.com"
                 value={formData.email}
                 onChange={handleChange}
-                className={`flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white ${errors.email ? "border-red-500" : "border-slate-200"
-                  }`}
+                onKeyDown={handleKeyDown}
+                className={`flex h-10 w-full rounded-md border outline-none px-3 py-2 text-sm ring-offset-white ${
+                  errors.email ? "border-red-500" : "border-slate-200"
+                }`}
                 required
               />
               {errors.email && (
@@ -126,12 +198,16 @@ function SignIn() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
-                className={`flex h-10 w-full rounded-md outline-none border px-3 py-2 text-sm ring-offset-white ${errors.password ? "border-red-500" : "border-slate-200"
-                  }`}
+                onKeyDown={handleKeyDown}
+                className={`flex h-10 w-full rounded-md outline-none border px-3 py-2 text-sm ring-offset-white ${
+                  errors.password ? "border-red-500" : "border-slate-200"
+                }`}
                 required
               />
               {errors.password && (
@@ -144,10 +220,15 @@ function SignIn() {
                 <input
                   type="checkbox"
                   id="remember"
+                  checked={formData.remember}
+                  onChange={handleChange}
                   className="h-4 w-4 rounded outline-none border-slate-300 text-slate-900 focus:ring-slate-950"
                 />
-                <label htmlFor="remember" className="text-sm font-medium leading-none">
-                  Remember me
+                <label
+                  htmlFor="remember"
+                  className="text-sm font-medium leading-none"
+                >
+                  Remember my email
                 </label>
               </div>
               <a
@@ -159,22 +240,24 @@ function SignIn() {
             </div>
 
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
-              className={`inline-flex h-10 w-full items-center justify-center rounded-md bg-[#314CB6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 ${loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`inline-flex h-10 w-full items-center justify-center rounded-md bg-[#314CB6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
-          </div>
+          </form>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-500">Or continue with</span>
+              <span className="bg-white px-2 text-slate-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -194,8 +277,10 @@ function SignIn() {
               Google
             </button>
 
+            {/* Placeholder for superadmin-specific action */}
             <button
               type="button"
+              onClick={handleGitHubClick}
               className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-100"
             >
               <svg
