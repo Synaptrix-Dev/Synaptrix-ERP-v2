@@ -1,14 +1,23 @@
-//? REQUIRING DEPENDENCIES
+// db.js
 const mongoose = require('mongoose');
-require("dotenv").config({ path: "./config.env" })
+let isConnected = false;
 
+const connectToDB = async () => {
+  if (isConnected) return;
 
-const URI = process.env.DATABASE;
+  try {
+    const conn = await mongoose.connect(process.env.DATABASE, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-const connectToDB = mongoose.connect(URI).then(() => {
-    console.log("✨ ================== Connected to Synaptrix Database ================== ✨");
-}).catch((err) => {
-    console.log("Error Connecting Database!", err);
-})
+    isConnected = true;
+    console.log("✨ Connected to Synaptrix Database");
+    return conn;
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    throw err;
+  }
+};
 
-module.exports = connectToDB;   
+module.exports = connectToDB;
