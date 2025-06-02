@@ -13,7 +13,8 @@ server.use(express.static(path.join(__dirname, "public")));
 
 server.use(
   cors({
-    origin: "https://synaptrix-erp-v2.vercel.app",
+    // origin: "https://synaptrix-erp-v2.vercel.app",
+    origin: "https://admin.synaptrixsol.com",
     // origin: "*",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
