@@ -4,14 +4,13 @@ import { useAuth } from "../../../context/data";
 import toast, { Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import Quill from "quill";
+import LoaderDesign from "../../../components/Loader";
 import "quill/dist/quill.snow.css";
 import DOMPurify from "dompurify";
 
 // Loader Component (simplified for demo)
 const Loader = () => (
-  <div className="flex justify-center items-center h-screen">
-    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
-  </div>
+  <LoaderDesign />
 );
 
 // Status color utility
@@ -95,7 +94,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -136,7 +135,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -147,7 +146,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="deadline"
                   value={formData.deadline}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -158,7 +157,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="budget"
                   value={formData.budget}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -169,7 +168,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="client"
                   value={formData.client}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -180,7 +179,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="clientEmail"
                   value={formData.clientEmail}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -191,7 +190,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="clientPhone"
                   value={formData.clientPhone}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 />
               </div>
@@ -202,7 +201,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="tech"
                   value={formData.tech}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   placeholder="e.g., React, Node.js, MongoDB"
                 />
               </div>
@@ -212,7 +211,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-sm p-2 border-gray-100 outline-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                     className="w-full bg-white rounded border border-gray-300 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   required
                 >
                   <option value="Completed">Completed</option>
@@ -225,13 +224,13 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                 className="bg-slate-50 cursor-pointer text-slate-800 border border-slate-200 text-sm font-medium px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-slate-100 transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  className="btnBg text-white px-4 py-2 text-sm rounded-lg hover:bg-blue-700 transition"
                 >
                   Save Changes
                 </button>
@@ -256,7 +255,7 @@ const ProjectDetailView = ({ project, contributorImages, getStatusColor, sanitiz
             <span className="font-medium text-gray-700">{project.status}</span>
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="btnBg text-white px-4 py-2 text-sm rounded-lg hover:bg-blue-700 transition"
             >
               Edit Project
             </button>
@@ -288,11 +287,11 @@ const ProjectDetailView = ({ project, contributorImages, getStatusColor, sanitiz
                 </div>
               </div>
               <div className="flex items-center">
-               <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
-                                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                    </svg>
-                                </div>
+                <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                </div>
                 <div>
                   <p className="text-xs text-gray-500 font-medium">CATEGORY</p>
                   <p className="text-gray-800 font-semibold">{project.category}</p>

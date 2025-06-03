@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const leadSchema = new mongoose.Schema({
+const expenseSchema = new mongoose.Schema({
     date: {
         type: String,
         required: false
@@ -35,4 +35,4 @@ const leadSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
-module.exports = mongoose.model('leads', leadSchema);
+module.exports = mongoose.model('expenses', expenseSchema);

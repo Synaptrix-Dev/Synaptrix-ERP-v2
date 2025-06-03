@@ -273,7 +273,14 @@ function Projects() {
                                     className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full transition-all duration-300"
                                 >
                                     <div className="flex justify-between items-center mb-4">
-                                        <span className="btnBg text-white text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-wide">
+                                        <span
+                                            className={`text-white text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-wide ${project.status === 'On Hold' ? 'bg-yellow-500' :
+                                                    project.status === 'Completed' ? 'bg-green-600' :
+                                                        project.status === 'In Progress' ? 'btnBg' :
+                                                            project.status === 'Cancelled' ? 'bg-red-500' :
+                                                                'bg-gray-500' // Default for Active or unknown
+                                                }`}
+                                        >
                                             {project.status || 'Active'}
                                         </span>
                                         <div className="flex items-center space-x-2">
@@ -345,7 +352,7 @@ function Projects() {
                                                         />
                                                     ) : (
                                                         <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold bg-slate-50 border border-slate-200 object-cover z-[${10 * (index + 1)}] hover:scale-110 transition-transform duration-200`}>
-                                                           SS
+                                                            SS
                                                         </div>
                                                     )}
                                                 </div>
