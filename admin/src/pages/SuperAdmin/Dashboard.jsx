@@ -1,43 +1,4 @@
-import React from 'react';
-
-// Sample data for stats and projects
-const projectData = [
-  {
-    id: 1,
-    name: 'Website Redesign',
-    progress: 75,
-    status: 'In Progress',
-    deadline: '15 May 2025'
-  },
-  {
-    id: 2,
-    name: 'Mobile App Development',
-    progress: 45,
-    status: 'In Progress',
-    deadline: '28 May 2025'
-  },
-  {
-    id: 3,
-    name: 'Database Migration',
-    progress: 90,
-    status: 'Almost Done',
-    deadline: '10 May 2025'
-  },
-  {
-    id: 4,
-    name: 'Security Audit',
-    progress: 30,
-    status: 'In Progress',
-    deadline: '5 June 2025'
-  },
-];
-
-const leadsStats = [
-  { type: 'Social Media', count: 156, percentage: 40 },
-  { type: 'Direct', count: 98, percentage: 25 },
-  { type: 'Referral', count: 84, percentage: 21 },
-  { type: 'Organic', count: 54, percentage: 14 },
-];
+import React, { useState, useEffect } from 'react';
 
 // Custom icons using SVG
 const IconLock = () => (
@@ -77,29 +38,8 @@ const IconBriefcase = () => (
   </svg>
 );
 
-const IconCalendar = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-    <line x1="16" y1="2" x2="16" y2="6"></line>
-    <line x1="8" y1="2" x2="8" y2="6"></line>
-    <line x1="3" y1="10" x2="21" y2="10"></line>
-  </svg>
-);
-
-const IconChevronUp = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-    <polyline points="18 15 12 9 6 15"></polyline>
-  </svg>
-);
-
-const IconChevronDown = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
-);
-
 // Stats Card Component
-const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
+const StatCard = ({ title, value, icon, color }) => {
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 flex flex-col">
       <div className="flex justify-between items-center mb-4">
@@ -111,107 +51,95 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
           {icon}
         </div>
       </div>
-      {trend && (
-        <div className="flex items-center">
-          {trend === 'up' ? (
-            <IconChevronUp />
-          ) : (
-            <IconChevronDown />
-          )}
-          <span className={`text-sm ${trend === 'up' ? 'text-green-500' : 'text-red-500'} ml-1`}>
-            {trendValue}
-          </span>
-          <span className="text-sm text-slate-500 ml-1">from last month</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Project Card Component
-const ProjectCard = ({ project }) => {
-  return (
-    <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-4">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="font-medium text-slate-800">{project.name}</h3>
-        <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'Completed'
-            ? 'bg-green-100 text-green-700'
-            : project.status === 'Almost Done'
-              ? 'bg-blue-100 text-blue-700'
-              : 'bg-yellow-100 text-yellow-700'
-          }`}>
-          {project.status}
-        </span>
-      </div>
-      <div className="mb-4">
-        <div className="flex justify-between mb-1">
-          <span className="text-xs text-slate-500">Progress</span>
-          <span className="text-xs font-medium text-slate-700">{project.progress}%</span>
-        </div>
-        <div className="w-full bg-slate-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full"
-            style={{ width: `${project.progress}%` }}
-          />
-        </div>
-      </div>
-      <div className="flex items-center text-xs text-slate-500">
-        <span className="mr-1"><IconCalendar /></span>
-        <span>Deadline: {project.deadline}</span>
-      </div>
     </div>
   );
 };
 
 // Leads Card Component
-const LeadsCard = () => {
+const LeadsCard = ({ leadsBreakdown, totalLeads }) => {
+  const leadTypes = [
+    { key: 'EmailSent', label: 'Email Sent', color: 'blue-600' },
+    { key: 'NotApplied', label: 'Not Applied', color: 'green-600' },
+    { key: 'NoResponse', label: 'No Response', color: 'yellow-600' },
+    { key: 'Failed', label: 'Failed', color: 'red-600' },
+    { key: 'Success', label: 'Success', color: 'purple-600' }
+  ];
+
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-medium text-slate-800">Leads by Type</h2>
+        <h2 className="text-lg font-medium text-slate-800">Leads by Status</h2>
         <span className="text-sm text-blue-600">View All</span>
       </div>
       <div className="space-y-4">
-        {leadsStats.map((lead, index) => (
-          <div key={index} className="flex flex-col">
-            <div className="flex justify-between mb-1">
-              <span className="text-sm text-slate-600">{lead.type}</span>
-              <span className="text-sm font-medium">{lead.count}</span>
+        {leadTypes.map((lead, index) => {
+          const count = leadsBreakdown[lead.key] || 0;
+          const percentage = totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(0) : 0;
+          return (
+            <div key={index} className="flex flex-col">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm text-slate-600">{lead.label}</span>
+                <span className="text-sm font-medium">{count}</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full bg-${lead.color}`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full ${index === 0 ? 'bg-blue-600' :
-                    index === 1 ? 'bg-green-600' :
-                      index === 2 ? 'bg-yellow-600' :
-                        'bg-purple-600'
-                  }`}
-                style={{ width: `${lead.percentage}%` }}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="mt-4 pt-4 border-t border-slate-200">
         <div className="flex justify-between">
           <span className="text-sm text-slate-500">Total Leads</span>
-          <span className="text-sm font-medium">392</span>
+          <span className="text-sm font-medium">{totalLeads}</span>
         </div>
       </div>
     </div>
   );
 };
 
-// Mini Stats Component
-const MiniStat = ({ label, value, change, isPositive }) => {
+// Projects Card Component
+const ProjectsCard = ({ projectsBreakdown, totalProjects }) => {
+  const projectTypes = [
+    { key: 'Canceled', label: 'Canceled', color: 'red-600' },
+    { key: 'InProgress', label: 'In Progress', color: 'blue-600' },
+    { key: 'Completed', label: 'Completed', color: 'green-600' }
+  ];
+
   return (
-    <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-lg">
-      <div>
-        <p className="text-sm text-slate-500">{label}</p>
-        <p className="text-lg font-medium">{value}</p>
+    <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-medium text-slate-800">Projects by Status</h2>
+        <span className="text-sm text-blue-600">View All</span>
       </div>
-      <div className={`text-sm ${isPositive ? 'text-green-500' : 'text-red-500'} flex items-center`}>
-        {isPositive ? <IconChevronUp /> : <IconChevronDown />}
-        <span className="ml-1">{change}%</span>
+      <div className="space-y-4">
+        {projectTypes.map((project, index) => {
+          const count = projectsBreakdown[project.key] || 0;
+          const percentage = totalProjects > 0 ? ((count / totalProjects) * 100).toFixed(0) : 0;
+          return (
+            <div key={index} className="flex flex-col">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm text-slate-600">{project.label}</span>
+                <span className="text-sm font-medium">{count}</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full bg-${project.color}`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-4 pt-4 border-t border-slate-200">
+        <div className="flex justify-between">
+          <span className="text-sm text-slate-500">Total Projects</span>
+          <span className="text-sm font-medium">{totalProjects}</span>
+        </div>
       </div>
     </div>
   );
@@ -219,6 +147,65 @@ const MiniStat = ({ label, value, change, isPositive }) => {
 
 // Main Dashboard Component
 export default function Dashboard() {
+  const baseURL = import.meta.env.VITE_BASE_URL; // e.g., http://localhost:5000
+  const apiKey = import.meta.env.VITE_APIKEY; // API key for authentication
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch(`${baseURL}/root/stats/get`, {
+          headers: {
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Debug response
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`HTTP error! Status: ${response.status}, Body: ${text.substring(0, 100)}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Response is not JSON: ${text.substring(0, 100)}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setStats(data.data);
+        } else {
+          setError('Failed to fetch stats: ' + data.error);
+        }
+      } catch (err) {
+        setError('Error fetching stats: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [baseURL, apiKey]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <p className="text-slate-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-4">
       <header className="mb-8">
@@ -228,170 +215,80 @@ export default function Dashboard() {
 
       {/* Main Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Secured Passwords"
-          value="256"
-          icon={<IconLock />}
-          trend="up"
-          trendValue="12%"
-          color="blue"
-        />
-        <StatCard
-          title="Expenses"
-          value="$12,500"
-          icon={<IconDollar />}
-          trend="down"
-          trendValue="5%"
-          color="red"
-        />
-        <StatCard
-          title="Earnings"
-          value="$45,200"
-          icon={<IconTrend />}
-          trend="up"
-          trendValue="18%"
-          color="green"
-        />
-        <StatCard
-          title="Leads"
-          value="392"
-          icon={<IconUsers />}
-          trend="up"
-          trendValue="7%"
-          color="purple"
-        />
+        {stats.totalCredentials > 0 && (
+          <StatCard
+            title="Secured Credentials"
+            value={stats.totalCredentials}
+            icon={<IconLock />}
+            color="blue"
+          />
+        )}
+        {stats.totalExpenses > 0 && (
+          <StatCard
+            title="Expenses"
+            value={`$${stats.totalExpenses.toLocaleString()}`}
+            icon={<IconDollar />}
+            color="red"
+          />
+        )}
+        {stats.totalEarnings > 0 && (
+          <StatCard
+            title="Earnings"
+            value={`$${stats.totalEarnings.toLocaleString()}`}
+            icon={<IconTrend />}
+            color="green"
+          />
+        )}
+        {stats.totalLeads > 0 && (
+          <StatCard
+            title="Total Leads"
+            value={stats.totalLeads}
+            icon={<IconUsers />}
+            color="purple"
+          />
+        )}
+        {stats.totalProjects > 0 && (
+          <StatCard
+            title="Total Projects"
+            value={stats.totalProjects}
+            icon={<IconBriefcase />}
+            color="blue"
+          />
+        )}
+        {stats.totalUsers > 0 && (
+          <StatCard
+            title="Total Users"
+            value={stats.totalUsers}
+            icon={<IconUsers />}
+            color="purple"
+          />
+        )}
+        {stats.totalAdmins > 0 && (
+          <StatCard
+            title="Admins"
+            value={stats.totalAdmins}
+            icon={<IconUsers />}
+            color="green"
+          />
+        )}
+        {stats.totalSuperAdmins > 0 && (
+          <StatCard
+            title="Super Admins"
+            value={stats.totalSuperAdmins}
+            icon={<IconUsers />}
+            color="red"
+          />
+        )}
       </div>
 
-      {/* Mini Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <MiniStat label="New Users" value="45" change="12" isPositive={true} />
-        <MiniStat label="Bounce Rate" value="42%" change="3" isPositive={false} />
-        <MiniStat label="Avg. Visit" value="3m 45s" change="8" isPositive={true} />
-        <MiniStat label="Conversion" value="8.2%" change="1.2" isPositive={true} />
-      </div>
-
-      {/* Projects and Leads Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-slate-800">Active Projects</h2>
-              <span className="text-sm text-blue-600">View All</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="px-2 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Project</th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Progress</th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Deadline</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {projectData.map((project) => (
-                    <tr key={project.id} className="border-b border-slate-200">
-                      <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-slate-800">{project.name}</td>
-                      <td className="px-2 py-4 whitespace-nowrap text-sm">
-                        <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'Completed'
-                            ? 'bg-green-100 text-green-700'
-                            : project.status === 'Almost Done'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                          {project.status}
-                        </span>
-                      </td>
-                      <td className="px-2 py-4 whitespace-nowrap text-sm">
-                        <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full"
-                            style={{ width: `${project.progress}%` }}
-                          />
-                        </div>
-                      </td>
-                      <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-500">{project.deadline}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Project Stats */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <div className="flex items-center mb-6">
-                <div className="p-3 bg-blue-50 rounded-full text-blue-600 mr-4">
-                  <IconBriefcase />
-                </div>
-                <div>
-                  <p className="text-lg font-medium text-slate-800">Projects Overview</p>
-                  <p className="text-sm text-slate-500">Current month</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white rounded-lg border border-slate-200">
-                  <p className="text-sm text-slate-500">Total</p>
-                  <p className="text-xl font-medium">24</p>
-                </div>
-                <div className="p-4 bg-white rounded-lg border border-slate-200">
-                  <p className="text-sm text-slate-500">Completed</p>
-                  <p className="text-xl font-medium">16</p>
-                </div>
-                <div className="p-4 bg-white rounded-lg border border-slate-200">
-                  <p className="text-sm text-slate-500">In Progress</p>
-                  <p className="text-xl font-medium">8</p>
-                </div>
-                <div className="p-4 bg-white rounded-lg border border-slate-200">
-                  <p className="text-sm text-slate-500">On Hold</p>
-                  <p className="text-xl font-medium">0</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Financial Stats */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <div className="flex items-center mb-6">
-                <div className="p-3 bg-green-50 rounded-full text-green-600 mr-4">
-                  <IconDollar />
-                </div>
-                <div>
-                  <p className="text-lg font-medium text-slate-800">Financial Summary</p>
-                  <p className="text-sm text-slate-500">This quarter</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-slate-500">Total Revenue</p>
-                  <p className="text-lg font-medium text-slate-800">$146,350</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-slate-500">Expenses</p>
-                  <p className="text-lg font-medium text-slate-800">$38,500</p>
-                </div>
-                <div className="flex justify-between items-center pt-4 border-t border-slate-200">
-                  <p className="text-sm font-medium text-slate-600">Net Profit</p>
-                  <p className="text-lg font-bold text-green-600">$107,850</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Leads Section */}
-        <div className="space-y-6">
-          <LeadsCard />
-
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-            <h2 className="text-lg font-medium text-slate-800 mb-4">Project Cards</h2>
-            <div className="space-y-4">
-              {projectData.slice(0, 2).map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Breakdown Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {stats.totalLeads > 0 && (
+          <LeadsCard leadsBreakdown={stats.leadsBreakdown} totalLeads={stats.totalLeads} />
+        )}
+        {stats.totalProjects > 0 && (
+          <ProjectsCard projectsBreakdown={stats.projectsBreakdown} totalProjects={stats.totalProjects} />
+        )}
       </div>
     </div>
   );

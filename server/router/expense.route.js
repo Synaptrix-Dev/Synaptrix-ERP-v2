@@ -15,6 +15,7 @@ router.route('/create-expense').post(expenseController.createExpense);
 router.route('/get-expenses').get(expenseController.getAllExpenses);
 router.route('/get-expense-by-id').get(expenseController.getExpenseById);
 router.route('/update-expense').patch(expenseController.updateExpense);
+router.route('/share-expense').patch(expenseController.updateAccessibles);
 router.route('/delete-expense').delete(expenseController.deleteExpense);
 
 
