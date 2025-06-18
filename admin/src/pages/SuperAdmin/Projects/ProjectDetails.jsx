@@ -18,6 +18,8 @@ const getStatusColor = (status) => {
   switch (status) {
     case "Completed":
       return "bg-green-500";
+    case "Planning Phase":
+      return "bg-slate-500";
     case "In Progress":
       return "bg-blue-500";
     case "On Hold":
@@ -216,6 +218,7 @@ const EditProjectModal = ({ isEditing, setIsEditing, formData, setFormData, hand
                 >
                   <option value="Completed">Completed</option>
                   <option value="In Progress">In Progress</option>
+                  <option value="Planning">Planning Phase</option>
                   <option value="On Hold">On Hold</option>
                   <option value="Canceled">Canceled</option>
                 </select>

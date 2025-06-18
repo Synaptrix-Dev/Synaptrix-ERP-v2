@@ -456,7 +456,7 @@ function Earning() {
                             <h2 className="font-semibold flex items-center text-sm">
                                 Total Earnings
                             </h2>
-                            <p className="text-3xl font-bold">PKR {totalEarnings.toFixed(2)}</p>
+                            <p className="text-3xl font-bold">$ {totalEarnings.toFixed(2)}</p>
                         </div>
                     </div>
                 </div>
@@ -476,7 +476,7 @@ function Earning() {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-lg font-bold text-green-600">
-                                                {parseFloat(earning.amount || 0).toLocaleString('en-US', { style: 'currency', currency: 'PKR' })}
+                                                {parseFloat(earning.amount || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                                             </p>
                                             <p className="text-xs text-gray-500 font-semibold">{earning.platform || 'N/A'}</p>
                                         </div>
@@ -637,7 +637,7 @@ function Earning() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Amount (PKR)</label>
+                                    <label className="block text-sm font-medium text-gray-700">Amount </label>
                                     <input
                                         type="number"
                                         name="amount"

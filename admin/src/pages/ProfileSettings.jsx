@@ -68,6 +68,17 @@ function ProfileSettings() {
         }
     };
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData({ ...formData, image: reader.result });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleUpdate = async () => {
         try {
             const response = await fetch(`${authURL}/root/auth/update-admin?_id=${id}`, {
@@ -109,7 +120,7 @@ function ProfileSettings() {
                         <div className="flex items-end space-x-4">
                             <img
                                 className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32 object-cover"
-                                src={adminData.image }
+                                src={adminData.image || profile}
                                 alt="profile"
                             />
                         </div>
@@ -161,7 +172,6 @@ function ProfileSettings() {
                             key={index}
                             className="max-w-lg bg-slate-50 text-gray-900 border border-slate-200 rounded-lg p-6 mb-4"
                         >
-                            {/* Card Logo */}
                             <div className="flex justify-between items-center mb-6">
                                 <img
                                     src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
@@ -169,8 +179,6 @@ function ProfileSettings() {
                                     className="h-16 w-auto"
                                 />
                             </div>
-
-                            {/* Bank Details */}
                             <div className="space-y-3">
                                 <div>
                                     <span className="text-xs uppercase tracking-wider text-gray-500">Account Name</span>
@@ -218,6 +226,15 @@ function ProfileSettings() {
                             </div>
                         </div>
                         <div className="space-y-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="w-full bg-white rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm outline-none text-gray-700 px-3 py-2 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Full Name</label>
                                 <input

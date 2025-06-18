@@ -277,7 +277,8 @@ function Projects() {
                                             className={`text-white text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-wide ${project.status === 'On Hold' ? 'bg-yellow-500' :
                                                     project.status === 'Completed' ? 'bg-green-600' :
                                                         project.status === 'In Progress' ? 'btnBg' :
-                                                            project.status === 'Cancelled' ? 'bg-red-500' :
+                                                            project.status === 'Canceled' ? 'bg-red-500' :
+                                                            project.status === 'Planning Phase' ? 'bg-blue-500' :
                                                                 'bg-gray-500' // Default for Active or unknown
                                                 }`}
                                         >
@@ -313,11 +314,11 @@ function Projects() {
                                         <div>
                                             <h2 className="text-sm font-medium text-gray-500 underline">Deadline:</h2>
                                             <p className="text-sm font-semibold text-gray-700">
-                                                {project.deadline || 'N/A'}
-                                            </p>
+                                            {project.deadline ? new Date(project.deadline).toLocaleDateString('en-GB') : 'N/A'}
+                                        </p>
                                         </div>
                                         <div>
-                                            <h2 className="text-sm font-medium text-gray-500 underline">Budget:</h2>
+                                            <h2 className="text-sm font-medium text-gray-500 underline">Cost:</h2>
                                             <p className="text-sm font-semibold text-gray-700">
                                                 {project.budget ? `$${project.budget}` : 'N/A'}
                                             </p>

@@ -27,6 +27,7 @@ import AdminDashboard from './pages/Admin/Dashboard'
 import AdminCredentials from './pages/Admin/Credentials/Credentials';
 import AdminLeads from './pages/Admin/Leads/Leads';
 import AdminProjects from './pages/Admin/Projects/Projects'
+import AdminProjectsDetails from './pages/Admin/Projects/ProjectDetails';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path='profile' element={<Profile />} />
           <Route path='leads' element={<AdminLeads />} />
           <Route path='projects' element={<AdminProjects />} />
+          <Route path='projects/:id' element={<AdminProjectsDetails />} />
         </Route>
 
       </Routes>

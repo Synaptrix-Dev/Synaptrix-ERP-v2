@@ -163,13 +163,14 @@ function Projects() {
                                     <div>
                                         <h2 className="text-sm font-medium text-gray-500 underline">Deadline:</h2>
                                         <p className="text-sm font-semibold text-gray-700">
-                                            {project.deadline || 'N/A'}
+                                            {project.deadline ? new Date(project.deadline).toLocaleDateString('en-GB') : 'N/A'}
                                         </p>
+
                                     </div>
                                     <div>
-                                        <h2 className="text-sm font-medium text-gray-500 underline">Budget:</h2>
+                                        <h2 className="text-sm font-medium text-gray-500 underline">Cost:</h2>
                                         <p className="text-sm font-semibold text-gray-700">
-                                            {project.budget ? `$${project.budget}` : 'N/A'}
+                                            {project.budget ? `$${project.budget}` : 'Not Authorized'}
                                         </p>
                                     </div>
                                 </div>
@@ -217,7 +218,7 @@ function Projects() {
                                         Created On: {new Date(project.createdAt).toLocaleDateString()}
                                     </span>
                                     <Link
-                                        to={`/root-erp/projects/${project._id}`}
+                                        to={`/erp/projects/${project._id}`}
                                         className="btnBg text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
                                     >
                                         View Details

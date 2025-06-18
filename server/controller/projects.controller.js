@@ -65,6 +65,30 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
+exports.getAccessibleProjectById = async (req, res) => {
+  try {
+    const project = await Project.findById(req.query.id).select('-budget -clientPhone -clientEmail');
+    
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        error: "Project not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+
 exports.updateProjectAccess = async (req, res) => {
   try {
     const { id, adminId, action } = req.query;
@@ -256,7 +280,7 @@ exports.getAccessibleProjects = async (req, res) => {
       });
     }
 
-    const projects = await Project.find({ accesibles: id });
+    const projects = await Project.find({ accesibles: id }).select('-budget -clientPhone -clientEmail');
 
     res.status(200).json({
       success: true,
@@ -270,3 +294,4 @@ exports.getAccessibleProjects = async (req, res) => {
     });
   }
 };
+

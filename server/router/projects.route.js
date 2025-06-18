@@ -17,12 +17,14 @@ router.route("/get-all-projects").get(projectsController.getAllProjects);
 router.route("/get-project-by-id").get(projectsController.getProjectById);
 router.route("/update-project").patch(projectsController.updateProject);
 router
-  .route("/update-project-access")
-  .put(projectsController.updateProjectAccess);
+.route("/update-project-access")
+.put(projectsController.updateProjectAccess);
 router.route("/delete").delete(projectsController.deleteProject);
 router.route("/milestone-status").put(projectsController.updateMilestoneStatus);
+
 router
-  .route("/get-accessible-projects")
-  .get(projectsController.getAccessibleProjects);
+.route("/get-accessible-projects")
+.get(projectsController.getAccessibleProjects);
+router.route("/get-accessible-project-by-id").get(projectsController.getAccessibleProjectById);
 
 module.exports = router;
