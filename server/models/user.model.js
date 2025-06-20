@@ -40,6 +40,13 @@ const accountSchema = new mongoose.Schema({
         accNum: { type: String, required: false },
         iban: { type: String, required: false },
     }],
+    personalDetails: [{
+        github: { type: String, required: false },
+        email: { type: String, required: false },
+        phone: { type: String, required: false },
+        dob: { type: String, required: false },
+        address: { type: String, required: false },
+    }],
     isAdmin: {
         type: Boolean,
         default: false,

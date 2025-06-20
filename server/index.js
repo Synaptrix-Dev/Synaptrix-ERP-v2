@@ -12,8 +12,8 @@ server.use(express.static(path.join(__dirname, "public")));
 
 server.use(
   cors({
-    // origin: "*",
-    origin: "https://admin.synaptrixsol.com",
+    origin: "*",
+    // origin: "https://admin.synaptrixsol.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
