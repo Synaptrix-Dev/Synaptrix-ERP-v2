@@ -234,7 +234,7 @@ function ProfileSettings() {
                         adminData.personalDetails.map((personal, index) => (
                             <div
                                 key={index}
-                                className="w-full h-[320px] bg-slate-50 text-gray-900 border border-slate-200 rounded-lg p-6 mb-4 flex flex-col"
+                                className="w-full h-full bg-slate-50 text-gray-900 border border-slate-200 rounded-lg p-6 mb-4 flex flex-col"
                             >
                                 <div className="space-y-3 flex-1">
                                     <div>
